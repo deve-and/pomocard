@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+.angular/
+out-tsc/
+
+# Ambiente local do Claude Code
+.claude/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

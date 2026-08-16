@@ -1,0 +1,68 @@
+<div class="review">
+  <header class="review__header pc-pixel-text">
+    <button class="review__back" type="button" (click)="backToDashboard()">&larr; Dashboard</button>
+    <h1>{{ deckTitle() }}</h1>
+    <div class="hud__mana">
+      <span aria-hidden="true">◆</span>
+      <span>{{ player.mana() }}</span>
+    </div>
+  </header>
+
+  <p class="review__loading pc-pixel-text" *ngIf="isLoading()">Carregando fila...</p>
+
+  <div class="panel review__empty" *ngIf="!isLoading() && totalCount() === 0">
+    <p class="pc-pixel-text">Tudo em dia por aqui!</p>
+    <p class="review__empty-hint">Não há cartas para revisar neste deck agora.</p>
+    <button class="pixel-button" type="button" (click)="backToDashboard()">Voltar ao Dashboard</button>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && totalCount() > 0 && !isSessionComplete()">
+    <div class="review__progress pc-pixel-text">
+      Carta {{ completedCount() + 1 }} / {{ totalCount() }}
+    </div>
+    <div class="review__progress-track">
+      <div class="review__progress-fill" [style.width.%]="progressPercent()"></div>
+    </div>
+
+    <div class="flip-card" [class.is-flipped]="isRevealed()" *ngIf="currentCard() as card">
+      <div class="flip-card__inner">
+        <div class="flip-card__face flip-card__face--front">
+          <span class="flip-card__hint">Pergunta</span>
+          <p>{{ card.front }}</p>
+        </div>
+        <div class="flip-card__face flip-card__face--back">
+          <span class="flip-card__hint">Resposta</span>
+          <p>{{ card.back }}</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="reward-chip pc-pixel-text" *ngIf="lastCardMana() !== null">+{{ lastCardMana() }} Mana</p>
+
+    <div class="review__actions" *ngIf="!isRevealed()">
+      <button class="pixel-button" type="button" (click)="reveal()">Mostrar Resposta</button>
+    </div>
+
+    <div class="review__ratings" *ngIf="isRevealed()">
+      <button class="rating-button rating-button--again" type="button" [disabled]="isSubmitting()" (click)="rate(1)">
+        Errei
+      </button>
+      <button class="rating-button rating-button--hard" type="button" [disabled]="isSubmitting()" (click)="rate(3)">
+        <span>Difícil</span>
+        <span class="rating-button__tag">Boss Battle</span>
+      </button>
+      <button class="rating-button rating-button--good" type="button" [disabled]="isSubmitting()" (click)="rate(4)">
+        Bom
+      </button>
+      <button class="rating-button rating-button--easy" type="button" [disabled]="isSubmitting()" (click)="rate(5)">
+        Fácil
+      </button>
+    </div>
+  </ng-container>
+
+  <div class="panel review__summary" *ngIf="isSessionComplete()">
+    <h2 class="pc-pixel-text">Fila Concluída!</h2>
+    <p class="review__summary-mana pc-pixel-text">+{{ sessionManaEarned() }} Mana</p>
+    <button class="pixel-button" type="button" (click)="backToDashboard()">Voltar ao Dashboard</button>
+  </div>
+</div>

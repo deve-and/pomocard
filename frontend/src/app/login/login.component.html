@@ -1,0 +1,16 @@
+<div class="login">
+  <div class="login__panel">
+    <p class="login__glyph" aria-hidden="true">◆</p>
+    <h1 class="pc-pixel-text">Pomocard</h1>
+    <p class="login__tagline">Transforme seu foco em Mana. Complete Pomodoros, crie flashcards e suba de nível.</p>
+
+    <button class="google-button" type="button" [disabled]="isSigningIn()" (click)="signIn()">
+      <svg class="google-button__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.2s2.7-6.2 6-6.2c1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 3.1 14.7 2.2 12 2.2 6.9 2.2 2.7 6.4 2.7 11.5S6.9 20.8 12 20.8c6.9 0 9.3-4.8 9.3-8.6 0-.6-.1-1-.15-1.4H12z"/>
+      </svg>
+      <span>{{ isSigningIn() ? 'Conectando...' : 'Entrar com Google' }}</span>
+    </button>
+
+    <p class="login__error" *ngIf="error()">{{ error() }}</p>
+  </div>
+</div>

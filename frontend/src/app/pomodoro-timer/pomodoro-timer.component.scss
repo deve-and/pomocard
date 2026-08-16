@@ -1,0 +1,48 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer__phase {
+  margin: 0;
+  font-size: 11px;
+  color: var(--pc-gold);
+  transition: color var(--pc-duration) var(--pc-ease);
+}
+
+.timer--break .timer__phase {
+  color: var(--pc-mana);
+}
+
+.timer__display {
+  font-size: 40px;
+  margin: 0 0 8px;
+  color: var(--pc-text);
+}
+
+.timer__controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.pixel-button--pause {
+  @include pixel-button(var(--pc-stamina));
+}
+
+.pixel-button--reset {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+}
+
+.pixel-button--skip {
+  @include pixel-button(var(--pc-mana));
+}

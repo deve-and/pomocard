@@ -1,0 +1,18 @@
+{
+  "name": "pomocard-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend do Pomocard MVP — API, autenticação Supabase e regras de economia (Mana/XP).",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

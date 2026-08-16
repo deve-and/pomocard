@@ -1,0 +1,16 @@
+<div class="timer" [class.timer--break]="isBreak()">
+  <p class="timer__phase pc-pixel-text">{{ phaseLabel() }}</p>
+  <p class="timer__display pc-pixel-text">{{ displayTime }}</p>
+  <div class="timer__controls">
+    <button class="pixel-button" type="button" *ngIf="!isRunning()" (click)="start()">
+      {{ remainingSeconds() === phaseDurationSeconds() ? 'Iniciar' : 'Retomar' }}
+    </button>
+    <button class="pixel-button pixel-button--pause" type="button" *ngIf="isRunning()" (click)="pause()">
+      Pausar
+    </button>
+    <button class="pixel-button pixel-button--reset" type="button" (click)="reset()">Reiniciar</button>
+    <button class="pixel-button pixel-button--skip" type="button" *ngIf="isBreak()" (click)="skipBreak()">
+      Pular Descanso
+    </button>
+  </div>
+</div>

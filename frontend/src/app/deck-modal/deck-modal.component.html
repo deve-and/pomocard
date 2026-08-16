@@ -1,0 +1,25 @@
+<div class="modal-overlay" role="presentation" (click)="cancel.emit()">
+  <div class="modal pc-pixel-text" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <h2>Novo Deck</h2>
+
+    <label class="modal__field">
+      <span>Nome do deck</span>
+      <input
+        type="text"
+        [ngModel]="title()"
+        (ngModelChange)="title.set($event)"
+        name="deckTitle"
+        placeholder="Ex: Vocabulário de Espanhol"
+        maxlength="80"
+        (keydown.enter)="submit()"
+      />
+    </label>
+
+    <div class="modal__actions">
+      <button class="pixel-button pixel-button--ghost" type="button" (click)="cancel.emit()">Cancelar</button>
+      <button class="pixel-button" type="button" [disabled]="!isValid || isSubmitting()" (click)="submit()">
+        Criar Deck
+      </button>
+    </div>
+  </div>
+</div>

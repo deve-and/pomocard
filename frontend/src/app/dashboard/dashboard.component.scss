@@ -1,0 +1,300 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.dashboard {
+  @include page-container(1280px);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// -----------------------------------------------------------------------
+// HUD
+// -----------------------------------------------------------------------
+.hud {
+  @include pixel-panel(var(--pc-panel));
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 20px;
+  flex-wrap: wrap;
+}
+
+.hud__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud__avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--pc-bg-alt);
+  border: 3px solid var(--pc-panel-border-light);
+  image-rendering: pixelated;
+}
+
+.hud__name {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pc-text);
+}
+
+.hud__level {
+  margin: 4px 0 0;
+  font-size: 10px;
+  color: var(--pc-gold);
+}
+
+.hud__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+
+.hud__bar-label {
+  flex: 0 0 72px;
+  color: var(--pc-text-muted);
+}
+
+.hud__bar-label--bonus {
+  color: var(--pc-stamina);
+}
+
+.hud__track {
+  @include pixel-bar-track;
+  flex: 1;
+}
+
+.hud__fill {
+  position: relative;
+  height: 100%;
+  min-width: 2px;
+  // Transição suave — com steps() uma variação pequena (ganhos de teste) não
+  // chega a mostrar nenhum degrau intermediário e parece que nada mudou.
+  transition: width 500ms var(--pc-ease);
+
+  // Linha clara no topo do preenchimento — efeito clássico de barra de RPG.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.hud__fill--xp {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pc-xp) 70%, white), var(--pc-xp));
+  box-shadow: 0 0 8px -1px var(--pc-xp);
+}
+
+.hud__fill--stamina {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pc-stamina) 70%, white), var(--pc-stamina));
+  box-shadow: 0 0 8px -1px var(--pc-stamina);
+}
+
+.hud__bar-value {
+  white-space: nowrap;
+  color: var(--pc-text-muted);
+}
+
+.hud__mana {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--pc-mana);
+}
+
+.hud__sign-out {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+  font-size: 10px;
+  padding: 8px 12px;
+}
+
+// -----------------------------------------------------------------------
+// Grid principal
+// -----------------------------------------------------------------------
+// align-items: start é o que garante que um card não "estica" o vizinho —
+// cada coluna cresce só com o próprio conteúdo, sem forçar a mesma altura.
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  align-items: start;
+  gap: 20px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel {
+  @include pixel-panel(var(--pc-panel));
+  padding: 20px;
+
+  h2 {
+    margin: 0 0 16px;
+    font-size: 12px;
+    color: var(--pc-gold);
+  }
+}
+
+// -----------------------------------------------------------------------
+// Timer
+// -----------------------------------------------------------------------
+.panel--timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.timer__hint {
+  font-size: 11px;
+  color: var(--pc-stamina);
+  margin: 0;
+}
+
+// -----------------------------------------------------------------------
+// Toast de recompensa
+// -----------------------------------------------------------------------
+.reward-toast {
+  align-self: center;
+  padding: 10px 20px;
+  font-size: 12px;
+  color: var(--pc-gold);
+  background: var(--pc-bg-alt);
+  border: 3px solid var(--pc-gold);
+  animation: pc-pop-in var(--pc-duration) var(--pc-ease);
+}
+
+// -----------------------------------------------------------------------
+// Decks
+// -----------------------------------------------------------------------
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.panel__action {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+  font-size: 9px;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.deck-list__empty {
+  font-size: 12px;
+  color: var(--pc-text-muted);
+  margin: 0;
+}
+
+.deck-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  // Depois de um certo número de decks, rola dentro do próprio card em vez
+  // de esticar a página indefinidamente.
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-color: var(--pc-panel-border-light) var(--pc-bg);
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--pc-bg);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--pc-panel-border-light);
+  }
+}
+
+.deck-card {
+  @include pixel-panel(var(--pc-bg-alt));
+  padding: 12px;
+}
+
+.deck-card__title {
+  margin: 0;
+  font-size: 12px;
+}
+
+.deck-card__meta {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--pc-text-muted);
+}
+
+.deck-card__badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-size: 10px;
+  background: var(--pc-hp);
+  color: var(--pc-text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--pc-duration) var(--pc-ease), background var(--pc-duration) var(--pc-ease);
+
+  &:hover {
+    background: var(--pc-boss);
+    transform: translateY(-2px);
+  }
+}
+
+// -----------------------------------------------------------------------
+// Guilda
+// -----------------------------------------------------------------------
+.guild-rank {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 11px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.guild-rank__pos {
+  color: var(--pc-gold);
+  width: 28px;
+}
+
+.guild-rank__name {
+  flex: 1;
+}
+
+.guild-rank__days {
+  color: var(--pc-text-muted);
+}

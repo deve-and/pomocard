@@ -1,0 +1,41 @@
+<div class="modal-overlay" role="presentation" (click)="cancel.emit()">
+  <div class="modal pc-pixel-text" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <h2>Pomodoro Concluído!</h2>
+    <p class="modal__subtitle">Registre o que você aprendeu em {{ focusMinutes }} min e receba sua recompensa.</p>
+
+    <label class="modal__field">
+      <span>Deck</span>
+      <select [(ngModel)]="deckId" name="deckId">
+        <option value="" disabled *ngIf="decks.length > 0">Selecione um deck</option>
+        <option *ngFor="let deck of decks" [value]="deck.id">{{ deck.title }}</option>
+        <option [value]="newDeckOption">+ Criar novo deck</option>
+      </select>
+    </label>
+
+    <label class="modal__field" *ngIf="isCreatingNewDeck">
+      <span>Nome do novo deck</span>
+      <input
+        type="text"
+        [(ngModel)]="newDeckTitle"
+        name="newDeckTitle"
+        placeholder="Ex: Vocabulário de Espanhol"
+        maxlength="80"
+      />
+    </label>
+
+    <label class="modal__field">
+      <span>Frente da carta</span>
+      <textarea [(ngModel)]="front" name="front" rows="2" placeholder="Pergunta ou conceito"></textarea>
+    </label>
+
+    <label class="modal__field">
+      <span>Verso da carta</span>
+      <textarea [(ngModel)]="back" name="back" rows="2" placeholder="Resposta"></textarea>
+    </label>
+
+    <div class="modal__actions">
+      <button class="pixel-button pixel-button--ghost" type="button" (click)="cancel.emit()">Cancelar</button>
+      <button class="pixel-button" type="button" [disabled]="!isValid" (click)="submit()">Criar Flashcard</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.modal-overlay {
+  @include modal-overlay;
+}
+
+.modal {
+  @include modal-surface(480px);
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--pc-gold);
+  }
+}
+
+.modal__subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pc-text-muted);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--pc-text-muted);
+
+  select,
+  input,
+  textarea {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    padding: 8px;
+    background: var(--pc-bg);
+    color: var(--pc-text);
+    border: 3px solid var(--pc-panel-border-light);
+    resize: vertical;
+  }
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.pixel-button--ghost {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+}

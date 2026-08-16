@@ -1,0 +1,248 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.review {
+  @include page-container(760px);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: pc-fade-in-up var(--pc-duration) var(--pc-ease);
+}
+
+.review__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h1 {
+    font-size: 13px;
+    margin: 0;
+    color: var(--pc-gold);
+    text-align: center;
+    flex: 1;
+  }
+}
+
+.review__back {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+  font-size: 11px;
+}
+
+.hud__mana {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--pc-mana);
+}
+
+// -----------------------------------------------------------------------
+// Progresso
+// -----------------------------------------------------------------------
+.review__loading {
+  color: var(--pc-text-muted);
+  font-size: 12px;
+}
+
+.review__progress {
+  align-self: flex-start;
+  font-size: 11px;
+  color: var(--pc-text-muted);
+}
+
+.review__progress-track {
+  @include pixel-bar-track;
+  width: 100%;
+}
+
+.review__progress-fill {
+  height: 100%;
+  background: var(--pc-boss);
+  transition: width var(--pc-duration) var(--pc-ease);
+}
+
+// -----------------------------------------------------------------------
+// Flip card
+// -----------------------------------------------------------------------
+.flip-card {
+  width: 100%;
+  height: 240px;
+  perspective: 1200px;
+}
+
+.flip-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 480ms var(--pc-ease);
+  transform-style: preserve-3d;
+}
+
+.flip-card.is-flipped .flip-card__inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card__face {
+  @include pixel-panel(var(--pc-panel));
+  @include pixel-glow(var(--pc-mana));
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+.flip-card__hint {
+  font-family: var(--pc-font-pixel);
+  font-size: 10px;
+  color: var(--pc-text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.flip-card__face--back {
+  transform: rotateY(180deg);
+  background: var(--pc-bg-alt);
+}
+
+// -----------------------------------------------------------------------
+// Reward chip flutuante
+// -----------------------------------------------------------------------
+.reward-chip {
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--pc-gold);
+  background: var(--pc-bg-alt);
+  border: 3px solid var(--pc-gold);
+  animation: pc-pop-in var(--pc-duration) var(--pc-ease);
+}
+
+// -----------------------------------------------------------------------
+// Ações
+// -----------------------------------------------------------------------
+.review__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.review__ratings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+
+  @media (max-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rating-button {
+  font-family: var(--pc-font-pixel);
+  font-size: 10px;
+  color: var(--pc-text);
+  border: none;
+  padding: 14px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: transform var(--pc-duration) var(--pc-ease);
+  box-shadow:
+    inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
+    inset 4px 4px 0 0 rgba(255, 255, 255, 0.25);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow:
+      inset 4px 4px 0 0 rgba(0, 0, 0, 0.35),
+      inset -4px -4px 0 0 rgba(255, 255, 255, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.rating-button--again {
+  background: var(--pc-hp);
+}
+
+.rating-button--hard {
+  background: var(--pc-boss);
+}
+
+.rating-button--good {
+  background: var(--pc-mana);
+  color: #0c1a1f;
+}
+
+.rating-button--easy {
+  background: var(--pc-xp);
+  color: #0c1f10;
+}
+
+.rating-button__tag {
+  font-size: 8px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--pc-text);
+}
+
+// -----------------------------------------------------------------------
+// Estados vazio / conclusão
+// -----------------------------------------------------------------------
+.review__empty,
+.review__summary {
+  @include pixel-panel(var(--pc-panel));
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  width: 100%;
+  animation: pc-pop-in var(--pc-duration) var(--pc-ease);
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--pc-gold);
+  }
+}
+
+.review__empty-hint {
+  margin: 0;
+  color: var(--pc-text-muted);
+  font-size: 13px;
+}
+
+.review__summary-mana {
+  font-size: 20px;
+  color: var(--pc-gold);
+  margin: 0;
+}
