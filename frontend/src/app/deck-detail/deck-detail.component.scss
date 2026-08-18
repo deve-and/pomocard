@@ -1,0 +1,121 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.deck-detail {
+  @include page-container(800px);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: pc-fade-in-up var(--pc-duration) var(--pc-ease);
+}
+
+.deck-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h1 {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    margin: 0;
+    color: var(--pc-gold);
+  }
+}
+
+.deck-detail__back {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+  font-size: 11px;
+}
+
+.deck-detail__loading {
+  color: var(--pc-text-muted);
+  font-size: 12px;
+}
+
+.deck-detail__error {
+  padding: 10px 16px;
+  font-size: 11px;
+  color: var(--pc-hp);
+  background: var(--pc-bg-alt);
+  border: 3px solid var(--pc-hp);
+  animation: pc-pop-in var(--pc-duration) var(--pc-ease);
+}
+
+.deck-detail__empty {
+  @include pixel-panel(var(--pc-panel));
+  padding: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deck-detail__empty-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pc-text-muted);
+}
+
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-item {
+  @include pixel-panel(var(--pc-bg-alt));
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.card-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-item__front {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pc-text);
+}
+
+.card-item__back {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--pc-text-muted);
+}
+
+.card-item__delete {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--pc-panel-border-light);
+  background: var(--pc-bg);
+  color: var(--pc-hp);
+  font-family: var(--pc-font-pixel);
+  cursor: pointer;
+  transition: background var(--pc-duration) var(--pc-ease), transform var(--pc-duration) var(--pc-ease);
+
+  &:hover {
+    background: var(--pc-hp);
+    color: var(--pc-text);
+    transform: scale(1.05);
+  }
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.pixel-button--danger {
+  @include pixel-button(var(--pc-hp), #2a0d0d);
+  font-size: 10px;
+}

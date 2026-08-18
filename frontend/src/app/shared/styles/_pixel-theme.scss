@@ -63,6 +63,17 @@
   }
 }
 
+// Pulso sutil — usado para sinalizar estado crítico (ex.: stamina quase zerada).
+@keyframes pc-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
 // Painel com moldura em degrau (bezel de 8-bit), sem border-radius —
 // pixel art não tem curvas suaves.
 @mixin pixel-panel($bg: var(--pc-panel)) {

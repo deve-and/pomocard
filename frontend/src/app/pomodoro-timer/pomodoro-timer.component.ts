@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, Output, computed, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output, computed, inject, signal } from '@angular/core';
+import { AudioService } from '../core/audio.service';
 
 export type PomodoroPhase = 'focus' | 'short-break' | 'long-break';
 
@@ -20,15 +21,14 @@ export type PomodoroPhase = 'focus' | 'short-break' | 'long-break';
   styleUrl: './pomodoro-timer.component.scss',
 })
 export class PomodoroTimerComponent implements OnDestroy {
-  // TODO: voltar para 25 depois dos testes de beta — 1 minuto é só para
-  // validar o ciclo de recompensa (Mana/XP) sem esperar a duração real.
-  @Input() durationMinutes = 1;
+  @Input() durationMinutes = 25;
   @Input() shortBreakMinutes = 5;
   @Input() longBreakMinutes = 15;
   @Input() longBreakEvery = 2;
 
   @Output() sessionCompleted = new EventEmitter<number>();
 
+  private readonly audio = inject(AudioService);
   private intervalHandle?: ReturnType<typeof setInterval>;
 
   readonly phase = signal<PomodoroPhase>('focus');
@@ -60,6 +60,7 @@ export class PomodoroTimerComponent implements OnDestroy {
 
   start(): void {
     if (this.isRunning()) return;
+    this.audio.unlock();
     this.isRunning.set(true);
     this.intervalHandle = setInterval(() => this.tick(), 1000);
   }
@@ -95,6 +96,7 @@ export class PomodoroTimerComponent implements OnDestroy {
     this.pause();
 
     if (this.phase() === 'focus') {
+      this.audio.playFocusComplete();
       this.sessionCompleted.emit(this.durationMinutes);
 
       const completed = this.completedFocusSessions() + 1;
@@ -104,6 +106,7 @@ export class PomodoroTimerComponent implements OnDestroy {
       this.phase.set(nextPhase);
       this.remainingSeconds.set(this.phaseDurationMinutes(nextPhase) * 60);
     } else {
+      this.audio.playBreakComplete();
       this.phase.set('focus');
       this.remainingSeconds.set(this.durationMinutes * 60);
     }

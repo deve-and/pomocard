@@ -52,9 +52,21 @@ export class PlayerStateService {
 
   readonly xpToNextLevel = computed(() => xpRequiredForLevel(this.level()));
   readonly xpPercent = computed(() => visiblePercent(this.xp(), this.xpToNextLevel()));
-  readonly staminaPercent = computed(() =>
-    visiblePercent(this.minutesFocusedToday(), this.staminaBonusCapMinutes)
+
+  // A stamina é tratada como um recurso que se GASTA (começa cheia, esvazia
+  // com o foco do dia) — o oposto do XP, que se acumula. A barra reflete isso:
+  // preenchida = energia disponível, drena conforme você estuda.
+  readonly staminaRemainingMinutes = computed(() =>
+    Math.max(0, this.staminaBonusCapMinutes - this.minutesFocusedToday())
   );
+  readonly staminaPercent = computed(() => visiblePercent(this.staminaRemainingMinutes(), this.staminaBonusCapMinutes));
+  readonly staminaLevel = computed<'full' | 'low' | 'critical'>(() => {
+    const pct = this.staminaPercent();
+    if (pct <= 15) return 'critical';
+    if (pct <= 40) return 'low';
+    return 'full';
+  });
+
   readonly isInBonusWindow = computed(() => this.minutesFocusedToday() < this.staminaBonusCapMinutes);
 
   async loadProfile(): Promise<void> {

@@ -33,6 +33,20 @@ interface FlashcardRow {
   interval_days: number;
 }
 
+function mapFlashcardRow(row: FlashcardRow): ReviewCard {
+  return {
+    id: row.id,
+    deckId: row.deck_id,
+    front: row.front_text,
+    back: row.back_text,
+    srsState: {
+      easinessFactor: row.easiness_factor,
+      repetitions: row.repetitions,
+      intervalDays: row.interval_days,
+    },
+  };
+}
+
 /**
  * Catálogo de decks + fila de revisão, lido direto de public.decks e
  * public.flashcards (ver db/schema.sql). Row Level Security já garante que
@@ -117,17 +131,56 @@ export class DeckCatalogService {
       return [];
     }
 
-    return data.map((row) => ({
-      id: row.id,
-      deckId: row.deck_id,
-      front: row.front_text,
-      back: row.back_text,
-      srsState: {
-        easinessFactor: row.easiness_factor,
-        repetitions: row.repetitions,
-        intervalDays: row.interval_days,
-      },
-    }));
+    return data.map(mapFlashcardRow);
+  }
+
+  /** Todas as cartas do deck (não só as devidas) — usado na tela de gerenciamento. */
+  async getDeckFlashcards(deckId: string): Promise<ReviewCard[]> {
+    const { data, error } = await this.supabase
+      .from('flashcards')
+      .select('id, deck_id, front_text, back_text, easiness_factor, repetitions, interval_days')
+      .eq('deck_id', deckId)
+      .order('created_at')
+      .returns<FlashcardRow[]>();
+
+    if (error || !data) {
+      console.error('Falha ao carregar cartas do deck', error);
+      return [];
+    }
+
+    return data.map(mapFlashcardRow);
+  }
+
+  /** @returns true se a exclusão foi confirmada no banco — só então a UI deve refletir a remoção. */
+  async deleteFlashcard(flashcardId: string, deckId: string): Promise<boolean> {
+    const { error } = await this.supabase.from('flashcards').delete().eq('id', flashcardId);
+    if (error) {
+      console.error('Falha ao excluir flashcard', error);
+      return false;
+    }
+
+    this.decksState.update((decks) =>
+      decks.map((deck) => (deck.id === deckId ? { ...deck, cardCount: Math.max(0, deck.cardCount - 1) } : deck))
+    );
+    // Recalcula em vez de só decrementar — não sabemos se a carta excluída estava na fila de hoje.
+    await this.refreshDueCounts([deckId]);
+    return true;
+  }
+
+  /** @returns true se a exclusão foi confirmada no banco — só então é seguro navegar para longe da tela. */
+  async deleteDeck(deckId: string): Promise<boolean> {
+    const { error } = await this.supabase.from('decks').delete().eq('id', deckId);
+    if (error) {
+      console.error('Falha ao excluir deck', error);
+      return false;
+    }
+
+    this.decksState.update((decks) => decks.filter((deck) => deck.id !== deckId));
+    this.dueCountState.update((counts) => {
+      const { [deckId]: _removed, ...rest } = counts;
+      return rest;
+    });
+    return true;
   }
 
   async createDeck(title: string): Promise<DeckSummary | null> {

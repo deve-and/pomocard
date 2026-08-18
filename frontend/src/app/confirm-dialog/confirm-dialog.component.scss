@@ -1,0 +1,41 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.modal-overlay {
+  @include modal-overlay;
+}
+
+.modal {
+  @include modal-surface(400px);
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--pc-hp);
+  }
+}
+
+.modal__message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--pc-text-muted);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.pixel-button--ghost {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+}
+
+.pixel-button--danger {
+  @include pixel-button(var(--pc-hp), #2a0d0d);
+}

@@ -20,9 +20,14 @@
     <div class="hud__bar">
       <span class="hud__bar-label" [class.hud__bar-label--bonus]="player.isInBonusWindow()">Stamina</span>
       <div class="hud__track">
-        <div class="hud__fill hud__fill--stamina" [style.width.%]="player.staminaPercent()"></div>
+        <div
+          class="hud__fill hud__fill--stamina"
+          [class.hud__fill--stamina-low]="player.staminaLevel() === 'low'"
+          [class.hud__fill--stamina-critical]="player.staminaLevel() === 'critical'"
+          [style.width.%]="player.staminaPercent()"
+        ></div>
       </div>
-      <span class="hud__bar-value">{{ player.minutesFocusedToday() }}/{{ player.staminaBonusCapMinutes }}min</span>
+      <span class="hud__bar-value">{{ player.staminaRemainingMinutes() }}min restantes</span>
     </div>
 
     <div class="hud__mana">
@@ -73,13 +78,16 @@
         <li class="deck-card" *ngFor="let deck of deckCatalog.decks()">
           <p class="deck-card__title">{{ deck.title }}</p>
           <p class="deck-card__meta">{{ deck.cardCount }} cartas</p>
-          <a
-            class="deck-card__badge"
-            *ngIf="deckCatalog.dueCount(deck.id) > 0"
-            [routerLink]="['/review', deck.id]"
-          >
-            {{ deckCatalog.dueCount(deck.id) }} para revisar
-          </a>
+          <div class="deck-card__actions">
+            <a
+              class="deck-card__badge"
+              *ngIf="deckCatalog.dueCount(deck.id) > 0"
+              [routerLink]="['/review', deck.id]"
+            >
+              {{ deckCatalog.dueCount(deck.id) }} para revisar
+            </a>
+            <a class="deck-card__manage" [routerLink]="['/decks', deck.id]">Gerenciar</a>
+          </div>
         </li>
       </ul>
     </section>

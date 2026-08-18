@@ -1,0 +1,47 @@
+<div class="deck-detail">
+  <header class="deck-detail__header pc-pixel-text">
+    <button class="deck-detail__back" type="button" (click)="backToDashboard()">&larr; Dashboard</button>
+    <h1>{{ deckTitle() }}</h1>
+    <button class="pixel-button pixel-button--danger" type="button" (click)="isDeckDeleteConfirmOpen.set(true)">
+      Excluir Baralho
+    </button>
+  </header>
+
+  <p class="deck-detail__error pc-pixel-text" *ngIf="errorMessage() as error">{{ error }}</p>
+
+  <p class="deck-detail__loading pc-pixel-text" *ngIf="isLoading()">Carregando cartas...</p>
+
+  <div class="panel deck-detail__empty" *ngIf="!isLoading() && cards().length === 0">
+    <p class="pc-pixel-text">Este deck ainda não tem cartas.</p>
+    <p class="deck-detail__empty-hint">Crie flashcards completando um Pomodoro neste deck.</p>
+  </div>
+
+  <ul class="card-list" *ngIf="!isLoading() && cards().length > 0">
+    <li class="card-item" *ngFor="let card of cards()">
+      <div class="card-item__content">
+        <p class="card-item__front">{{ card.front }}</p>
+        <p class="card-item__back">{{ card.back }}</p>
+      </div>
+      <button class="card-item__delete" type="button" (click)="requestDeleteCard(card)" aria-label="Excluir carta">
+        ✕
+      </button>
+    </li>
+  </ul>
+
+  <pc-confirm-dialog
+    *ngIf="cardPendingDeletion() as card"
+    title="Excluir carta?"
+    [message]="'A carta ' + card.front + ' será removida permanentemente deste deck.'"
+    (confirm)="confirmDeleteCard()"
+    (cancel)="cardPendingDeletion.set(null)"
+  ></pc-confirm-dialog>
+
+  <pc-confirm-dialog
+    *ngIf="isDeckDeleteConfirmOpen()"
+    title="Excluir baralho inteiro?"
+    [message]="'Todas as cartas de ' + deckTitle() + ' serão perdidas permanentemente. Essa ação não pode ser desfeita.'"
+    confirmLabel="Excluir Baralho"
+    (confirm)="confirmDeleteDeck()"
+    (cancel)="isDeckDeleteConfirmOpen.set(false)"
+  ></pc-confirm-dialog>
+</div>
