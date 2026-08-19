@@ -47,7 +47,7 @@
     <div class="dashboard__sidebar">
       <section class="panel panel--timer">
         <h2>Pomodoro</h2>
-        <pc-pomodoro-timer (sessionCompleted)="onSessionCompleted($event)"></pc-pomodoro-timer>
+        <pc-pomodoro-timer></pc-pomodoro-timer>
         <p class="timer__hint" *ngIf="player.isInBonusWindow()">
           Bônus de Stamina ativo: +100% de Mana nesta sessão!
         </p>
@@ -97,6 +97,7 @@
     *ngIf="isFlashcardModalOpen()"
     [decks]="deckCatalog.decks()"
     [focusMinutes]="pendingSessionMinutes()"
+    [isSubmitting]="isSubmittingFlashcard()"
     (create)="onFlashcardCreate($event)"
     (cancel)="onFlashcardCancel()"
   ></pc-flashcard-modal>

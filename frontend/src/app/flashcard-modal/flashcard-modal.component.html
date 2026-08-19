@@ -34,8 +34,12 @@
     </label>
 
     <div class="modal__actions">
-      <button class="pixel-button pixel-button--ghost" type="button" (click)="cancel.emit()">Cancelar</button>
-      <button class="pixel-button" type="button" [disabled]="!isValid" (click)="submit()">Criar Flashcard</button>
+      <button class="pixel-button pixel-button--ghost" type="button" [disabled]="isSubmitting" (click)="cancel.emit()">
+        Cancelar
+      </button>
+      <button class="pixel-button" type="button" [disabled]="!isValid || isSubmitting" (click)="submit()">
+        {{ isSubmitting ? 'Criando...' : 'Criar Flashcard' }}
+      </button>
     </div>
   </div>
 </div>

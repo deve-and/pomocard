@@ -87,8 +87,28 @@ export class ReviewComponent {
       this.lastCardMana.set(manaEarned);
       setTimeout(() => this.lastCardMana.set(null), REWARD_CHIP_DURATION_MS);
 
-      await this.deckCatalog.submitCardReview(card, quality, schedule, manaEarned);
-      this.queue.update((cards) => cards.slice(1));
+      // A carta local precisa carregar o novo srsState retornado pelo backend: se ela for
+      // requeued (errou) e revisada de novo nesta mesma sessão, o próximo cálculo de SM-2
+      // tem que partir do estado pós-erro, não do estado com que a sessão começou.
+      const updatedCard = {
+        ...card,
+        srsState: {
+          easinessFactor: schedule.easinessFactor,
+          repetitions: schedule.repetitions,
+          intervalDays: schedule.intervalDays,
+        },
+      };
+      await this.deckCatalog.submitCardReview(updatedCard, quality, schedule, manaEarned);
+
+      if (quality < 3) {
+        // Errou: a carta é a "Boss Battle" da sessão — continua na fila e volta pro topo,
+        // sempre a próxima a ser lida, até ser vencida.
+        this.queue.update((cards) => [updatedCard, ...cards.slice(1)]);
+      } else {
+        // Acertou: sai da rotação desta sessão (equivalente a ir pro fim do baralho — não
+        // volta a aparecer hoje).
+        this.queue.update((cards) => cards.slice(1));
+      }
       this.isRevealed.set(false);
     } catch (err) {
       console.error('Falha ao registrar revisão', err);

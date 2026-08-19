@@ -35,6 +35,7 @@ const NEW_DECK_OPTION = '__new__';
 export class FlashcardModalComponent implements OnInit {
   @Input({ required: true }) decks: DeckOption[] = [];
   @Input() focusMinutes = 25;
+  @Input() isSubmitting = false;
 
   @Output() create = new EventEmitter<FlashcardDraft>();
   @Output() cancel = new EventEmitter<void>();
@@ -63,7 +64,7 @@ export class FlashcardModalComponent implements OnInit {
   }
 
   submit(): void {
-    if (!this.isValid) return;
+    if (!this.isValid || this.isSubmitting) return;
     this.create.emit({
       deckId: this.isCreatingNewDeck ? undefined : this.deckId,
       newDeckTitle: this.isCreatingNewDeck ? this.newDeckTitle.trim() : undefined,

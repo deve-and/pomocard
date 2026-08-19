@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 import { DeckCatalogService } from '../core/deck-catalog.service';
 import { PlayerStateService } from '../core/player-state.service';
+import { PomodoroTimerService } from '../core/pomodoro-timer.service';
 import { RewardService } from '../core/reward.service';
 import { DeckModalComponent } from '../deck-modal/deck-modal.component';
 import { FlashcardDraft, FlashcardModalComponent } from '../flashcard-modal/flashcard-modal.component';
@@ -24,6 +25,7 @@ interface GuildRankEntry {
 export class DashboardComponent {
   readonly player = inject(PlayerStateService);
   readonly deckCatalog = inject(DeckCatalogService);
+  private readonly pomodoroTimer = inject(PomodoroTimerService);
   private readonly rewardService = inject(RewardService);
   private readonly auth = inject(AuthService);
 
@@ -37,6 +39,7 @@ export class DashboardComponent {
 
   // Estado do fluxo Timer -> Modal -> Recompensa
   readonly isFlashcardModalOpen = signal(false);
+  readonly isSubmittingFlashcard = signal(false);
   readonly lastReward = signal<{ manaEarned: number; xpEarned: number } | null>(null);
   readonly pendingSessionMinutes = signal(0);
 
@@ -46,6 +49,17 @@ export class DashboardComponent {
   constructor() {
     this.player.loadProfile();
     this.deckCatalog.loadDecks();
+
+    // O timer roda num serviço singleton (sobrevive à navegação entre rotas), então uma
+    // sessão de foco pode ter terminado enquanto o dashboard estava desmontado. O effect
+    // roda assim que este componente é (re)criado e pega qualquer recompensa pendente.
+    effect(() => {
+      const focusMinutes = this.pomodoroTimer.pendingFocusReward();
+      if (focusMinutes !== null) {
+        this.pomodoroTimer.consumePendingFocusReward();
+        this.onSessionCompleted(focusMinutes);
+      }
+    });
   }
 
   onSessionCompleted(focusMinutes: number): void {
@@ -62,6 +76,13 @@ export class DashboardComponent {
   }
 
   onFlashcardCreate(draft: FlashcardDraft): void {
+    // O cálculo de recompensa pode demorar (o backend no plano free do Render "acorda"
+    // em até uns 30s quando estava ocioso). Sem essa trava, cliques repetidos no botão
+    // durante essa espera disparavam uma recompensa completa a cada clique — zerando a
+    // stamina e inflando XP/nível como se vários Pomodoros tivessem sido concluídos.
+    if (this.isSubmittingFlashcard()) return;
+    this.isSubmittingFlashcard.set(true);
+
     const minutesBefore = this.player.minutesFocusedToday();
     const sessionMinutes = this.pendingSessionMinutes();
 
@@ -75,10 +96,12 @@ export class DashboardComponent {
         if (deckId) {
           await this.deckCatalog.createFlashcard(deckId, draft.front, draft.back);
         }
+        this.isSubmittingFlashcard.set(false);
         this.isFlashcardModalOpen.set(false);
       },
       error: (err) => {
         console.error('Falha ao calcular recompensa do Pomodoro', err);
+        this.isSubmittingFlashcard.set(false);
         this.isFlashcardModalOpen.set(false);
       },
     });
