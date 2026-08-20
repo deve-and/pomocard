@@ -32,12 +32,12 @@
   font-size: 11px;
 }
 
-.hud__mana {
+.hud__gold {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--pc-mana);
+  color: var(--pc-gold);
 }
 
 // -----------------------------------------------------------------------
@@ -241,7 +241,7 @@
   font-size: 13px;
 }
 
-.review__summary-mana {
+.review__summary-gold {
   font-size: 20px;
   color: var(--pc-gold);
   margin: 0;

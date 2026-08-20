@@ -4,7 +4,7 @@ import { SupabaseService } from './supabase.service';
 
 /**
  * Sessão de autenticação (Google OAuth via Supabase Auth). O perfil de jogo
- * (Mana/XP/decks) só existe depois que public.users é populado pelo trigger
+ * (Gold/XP/decks) só existe depois que public.users é populado pelo trigger
  * on_auth_user_created (ver db/schema.sql) no primeiro login.
  */
 @Injectable({ providedIn: 'root' })

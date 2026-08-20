@@ -11,7 +11,7 @@ interface UserRow {
   stamina_reset_on: string;
 }
 
-const STAMINA_BONUS_CAP_MINUTES = 180;
+const MANA_CAP_MINUTES = 180;
 
 // Curva de XP por nível — placeholder simples até o balanceamento do jogo ser definido.
 function xpRequiredForLevel(level: number): number {
@@ -33,9 +33,15 @@ function visiblePercent(current: number, total: number): number {
 }
 
 /**
- * Estado do jogador (Mana/XP/Level/Stamina), persistido em public.users
+ * Estado do jogador (Gold/XP/Level/Mana), persistido em public.users
  * (ver db/schema.sql). Compartilhado entre Dashboard e Revisão para que uma
  * recompensa dada em qualquer tela reflita no HUD imediatamente.
+ *
+ * Nomenclatura: as colunas do Supabase (`mana`, `stamina_reset_on`, etc.)
+ * mantêm os nomes originais para não exigir uma migração no banco de
+ * produção — o domínio do app foi renomeado (o antigo "Stamina" virou
+ * "Mana", e o antigo "Mana" virou "Gold"), mas o mapeamento pra essas
+ * colunas fica só aqui, na fronteira com o banco.
  */
 @Injectable({ providedIn: 'root' })
 export class PlayerStateService {
@@ -45,29 +51,27 @@ export class PlayerStateService {
   readonly username = signal('');
   readonly level = signal(1);
   readonly xp = signal(0);
-  readonly mana = signal(0);
+  readonly gold = signal(0);
   readonly minutesFocusedToday = signal(0);
-  readonly staminaBonusCapMinutes = STAMINA_BONUS_CAP_MINUTES;
+  readonly manaCapMinutes = MANA_CAP_MINUTES;
   readonly isLoaded = signal(false);
 
   readonly xpToNextLevel = computed(() => xpRequiredForLevel(this.level()));
   readonly xpPercent = computed(() => visiblePercent(this.xp(), this.xpToNextLevel()));
 
-  // A stamina é tratada como um recurso que se GASTA (começa cheia, esvazia
+  // A mana é tratada como um recurso que se GASTA (começa cheia, esvazia
   // com o foco do dia) — o oposto do XP, que se acumula. A barra reflete isso:
   // preenchida = energia disponível, drena conforme você estuda.
-  readonly staminaRemainingMinutes = computed(() =>
-    Math.max(0, this.staminaBonusCapMinutes - this.minutesFocusedToday())
-  );
-  readonly staminaPercent = computed(() => visiblePercent(this.staminaRemainingMinutes(), this.staminaBonusCapMinutes));
-  readonly staminaLevel = computed<'full' | 'low' | 'critical'>(() => {
-    const pct = this.staminaPercent();
+  readonly manaRemainingMinutes = computed(() => Math.max(0, this.manaCapMinutes - this.minutesFocusedToday()));
+  readonly manaPercent = computed(() => visiblePercent(this.manaRemainingMinutes(), this.manaCapMinutes));
+  readonly manaLevel = computed<'full' | 'low' | 'critical'>(() => {
+    const pct = this.manaPercent();
     if (pct <= 15) return 'critical';
     if (pct <= 40) return 'low';
     return 'full';
   });
 
-  readonly isInBonusWindow = computed(() => this.minutesFocusedToday() < this.staminaBonusCapMinutes);
+  readonly isInBonusWindow = computed(() => this.minutesFocusedToday() < this.manaCapMinutes);
 
   async loadProfile(): Promise<void> {
     const userId = this.auth.userId();
@@ -79,7 +83,7 @@ export class PlayerStateService {
       return;
     }
 
-    // Regra Anti-Burnout: a stamina reseta a cada novo dia.
+    // Regra Anti-Burnout: a mana reseta a cada novo dia.
     let minutesFocusedToday = data.minutes_focused_today;
     if (data.stamina_reset_on !== todayIso()) {
       minutesFocusedToday = 0;
@@ -87,18 +91,18 @@ export class PlayerStateService {
         .from('users')
         .update({ minutes_focused_today: 0, stamina_reset_on: todayIso() })
         .eq('id', userId);
-      if (resetError) console.error('Falha ao resetar stamina diária', resetError);
+      if (resetError) console.error('Falha ao resetar mana diária', resetError);
     }
 
     this.username.set(data.username);
     this.level.set(data.level);
     this.xp.set(data.xp);
-    this.mana.set(data.mana);
+    this.gold.set(data.mana);
     this.minutesFocusedToday.set(minutesFocusedToday);
     this.isLoaded.set(true);
   }
 
-  async addReward(manaEarned: number, xpEarned: number): Promise<void> {
+  async addReward(goldEarned: number, xpEarned: number): Promise<void> {
     const userId = this.auth.userId();
     if (!userId) return;
 
@@ -108,15 +112,15 @@ export class PlayerStateService {
       nextXp -= xpRequiredForLevel(nextLevel);
       nextLevel += 1;
     }
-    const nextMana = this.mana() + manaEarned;
+    const nextGold = this.gold() + goldEarned;
 
-    this.mana.set(nextMana);
+    this.gold.set(nextGold);
     this.xp.set(nextXp);
     this.level.set(nextLevel);
 
     const { error } = await this.supabase
       .from('users')
-      .update({ mana: nextMana, xp: nextXp, level: nextLevel })
+      .update({ mana: nextGold, xp: nextXp, level: nextLevel })
       .eq('id', userId);
     if (error) console.error('Falha ao salvar recompensa', error);
   }

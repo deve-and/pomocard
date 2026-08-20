@@ -23,7 +23,7 @@ test('GET /api/health responde ok', async () => {
   });
 });
 
-test('POST /api/rewards/pomodoro-session concede mana e xp por uma sessão válida', async () => {
+test('POST /api/rewards/pomodoro-session concede gold e xp por uma sessão válida', async () => {
   await withServer(async (baseUrl) => {
     const res = await fetch(`${baseUrl}/api/rewards/pomodoro-session`, {
       method: 'POST',
@@ -32,9 +32,9 @@ test('POST /api/rewards/pomodoro-session concede mana e xp por uma sessão váli
     });
     assert.equal(res.status, 200);
     const body = await res.json();
-    assert.equal(body.manaEarned, 100); // 25 * 2 * 1.0 (quality 4) * 2.0 (bônus stamina)
+    assert.equal(body.goldEarned, 100); // 25 * 2 * 1.0 (quality 4) * 2.0 (bônus mana)
     assert.equal(body.xpEarned, 100); // 25 * 4
-    assert.equal(body.staminaMultiplier, 2.0);
+    assert.equal(body.manaMultiplier, 2.0);
   });
 });
 
@@ -49,7 +49,7 @@ test('POST /api/rewards/pomodoro-session rejeita focusMinutes inválido', async 
   });
 });
 
-test('POST /api/reviews combina o agendamento SM-2 com a recompensa de mana', async () => {
+test('POST /api/reviews combina o agendamento SM-2 com a recompensa de gold', async () => {
   await withServer(async (baseUrl) => {
     const res = await fetch(`${baseUrl}/api/reviews`, {
       method: 'POST',
@@ -65,7 +65,7 @@ test('POST /api/reviews combina o agendamento SM-2 com a recompensa de mana', as
     const body = await res.json();
     assert.equal(body.schedule.repetitions, 2);
     assert.equal(body.schedule.intervalDays, 6);
-    assert.ok(body.manaEarned > 0);
+    assert.ok(body.goldEarned > 0);
   });
 });
 

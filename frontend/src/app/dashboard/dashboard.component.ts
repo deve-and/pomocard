@@ -40,7 +40,10 @@ export class DashboardComponent {
   // Estado do fluxo Timer -> Modal -> Recompensa
   readonly isFlashcardModalOpen = signal(false);
   readonly isSubmittingFlashcard = signal(false);
-  readonly lastReward = signal<{ manaEarned: number; xpEarned: number } | null>(null);
+  readonly lastReward = signal<{ goldEarned: number; xpEarned: number } | null>(null);
+  // 0 é um valor sentinela: nenhum Pomodoro real dura 0 minuto, então serve pra distinguir
+  // "modal aberto por uma sessão concluída" de "modal aberto manualmente" (ver
+  // openManualFlashcardModal) — a criação manual não passa pelo cálculo de recompensa.
   readonly pendingSessionMinutes = signal(0);
 
   // Criação de deck
@@ -71,29 +74,46 @@ export class DashboardComponent {
     this.isFlashcardModalOpen.set(true);
   }
 
+  /** Botão "+ Nova Carta" do dashboard: mesma modal, sem esperar um Pomodoro terminar. */
+  openManualFlashcardModal(): void {
+    this.pendingSessionMinutes.set(0);
+    this.lastReward.set(null);
+    this.isFlashcardModalOpen.set(true);
+  }
+
   onFlashcardCancel(): void {
-    // O tempo de foco conta para a stamina do dia mesmo sem criar a carta,
-    // mas sem carta não há recompensa (regra 1: a recompensa é atrelada à criação).
-    this.player.addFocusMinutes(this.pendingSessionMinutes());
+    // O tempo de foco conta pra mana do dia mesmo sem criar a carta (só quando veio de
+    // um Pomodoro de verdade — pendingSessionMinutes é 0 na criação manual, então isso
+    // não desconta mana à toa), mas sem carta não há recompensa (regra 1: a recompensa
+    // é atrelada à criação).
+    const sessionMinutes = this.pendingSessionMinutes();
+    if (sessionMinutes > 0) this.player.addFocusMinutes(sessionMinutes);
     this.isFlashcardModalOpen.set(false);
   }
 
   onFlashcardCreate(draft: FlashcardDraft): void {
+    if (this.isSubmittingFlashcard()) return;
+
+    const sessionMinutes = this.pendingSessionMinutes();
+    if (sessionMinutes <= 0) {
+      // Criação manual: não veio de um Pomodoro concluído, então não há recompensa de
+      // Gold/XP nem consumo de Mana a calcular — só cria a carta.
+      this.createFlashcardWithoutReward(draft);
+      return;
+    }
+
     // O cálculo de recompensa pode demorar (o backend no plano free do Render "acorda"
     // em até uns 30s quando estava ocioso). Sem essa trava, cliques repetidos no botão
     // durante essa espera disparavam uma recompensa completa a cada clique — zerando a
-    // stamina e inflando XP/nível como se vários Pomodoros tivessem sido concluídos.
-    if (this.isSubmittingFlashcard()) return;
+    // mana e inflando XP/nível como se vários Pomodoros tivessem sido concluídos.
     this.isSubmittingFlashcard.set(true);
-
     const minutesBefore = this.player.minutesFocusedToday();
-    const sessionMinutes = this.pendingSessionMinutes();
 
     this.rewardService.completePomodoroSession(sessionMinutes, minutesBefore).subscribe({
-      next: async ({ manaEarned, xpEarned }) => {
-        await this.player.addReward(manaEarned, xpEarned);
+      next: async ({ goldEarned, xpEarned }) => {
+        await this.player.addReward(goldEarned, xpEarned);
         await this.player.addFocusMinutes(sessionMinutes);
-        this.lastReward.set({ manaEarned, xpEarned });
+        this.lastReward.set({ goldEarned, xpEarned });
 
         const deckId = draft.deckId ?? (await this.deckCatalog.createDeck(draft.newDeckTitle!))?.id;
         if (deckId) {
@@ -108,6 +128,16 @@ export class DashboardComponent {
         this.isFlashcardModalOpen.set(false);
       },
     });
+  }
+
+  private async createFlashcardWithoutReward(draft: FlashcardDraft): Promise<void> {
+    this.isSubmittingFlashcard.set(true);
+    const deckId = draft.deckId ?? (await this.deckCatalog.createDeck(draft.newDeckTitle!))?.id;
+    if (deckId) {
+      await this.deckCatalog.createFlashcard(deckId, draft.front, draft.back);
+    }
+    this.isSubmittingFlashcard.set(false);
+    this.isFlashcardModalOpen.set(false);
   }
 
   onDeckCreate(title: string): void {

@@ -63,7 +63,7 @@
   }
 }
 
-// Pulso sutil — usado para sinalizar estado crítico (ex.: stamina quase zerada).
+// Pulso sutil — usado para sinalizar estado crítico (ex.: mana quase zerada).
 @keyframes pc-pulse {
   0%,
   100% {
@@ -110,7 +110,7 @@
   }
 }
 
-// Barra de progresso "estilo HUD de RPG" (XP, Mana, Stamina)
+// Barra de progresso "estilo HUD de RPG" (XP, Mana)
 @mixin pixel-bar-track {
   height: 20px;
   background: var(--pc-bg);

@@ -5,7 +5,7 @@
  * Recebe o estado atual de uma carta (public.flashcards) e a nota de
  * recall (0-5) dada pelo usuário na revisão, e devolve o novo estado
  * (easiness_factor, repetitions, interval_days, next_review_at) a ser
- * persistido. A nota também é o insumo de `manaService.calculateManaReward`
+ * persistido. A nota também é o insumo de `goldService.calculateGoldReward`
  * para determinar a recompensa de Mana da revisão ("Boss Battle").
  */
 

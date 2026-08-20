@@ -61,7 +61,7 @@
 }
 
 .hud__bar-label--bonus {
-  color: var(--pc-stamina);
+  color: var(--pc-mana);
 }
 
 .hud__track {
@@ -92,20 +92,20 @@
   box-shadow: 0 0 8px -1px var(--pc-xp);
 }
 
-.hud__fill--stamina {
-  // A stamina começa cheia e "esvazia" conforme o dia de foco avança — a cor
+.hud__fill--mana {
+  // A mana começa cheia e "esvazia" conforme o dia de foco avança — a cor
   // muda de tom junto, reforçando a sensação de energia sendo gasta.
-  background: linear-gradient(180deg, color-mix(in srgb, var(--pc-stamina) 70%, white), var(--pc-stamina));
-  box-shadow: 0 0 8px -1px var(--pc-stamina);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pc-mana) 70%, white), var(--pc-mana));
+  box-shadow: 0 0 8px -1px var(--pc-mana);
   transition: width 500ms var(--pc-ease), background var(--pc-duration) var(--pc-ease);
 }
 
-.hud__fill--stamina-low {
+.hud__fill--mana-low {
   background: linear-gradient(180deg, color-mix(in srgb, #ffb84c 70%, white), #ffb84c);
   box-shadow: 0 0 8px -1px #ffb84c;
 }
 
-.hud__fill--stamina-critical {
+.hud__fill--mana-critical {
   background: linear-gradient(180deg, color-mix(in srgb, var(--pc-hp) 70%, white), var(--pc-hp));
   box-shadow: 0 0 8px -1px var(--pc-hp);
   animation: pc-pulse 1.1s ease-in-out infinite;
@@ -116,12 +116,12 @@
   color: var(--pc-text-muted);
 }
 
-.hud__mana {
+.hud__gold {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: var(--pc-mana);
+  color: var(--pc-gold);
 }
 
 .hud__sign-out {
@@ -176,7 +176,7 @@
 
 .timer__hint {
   font-size: 11px;
-  color: var(--pc-stamina);
+  color: var(--pc-mana);
   margin: 0;
 }
 
@@ -206,6 +206,12 @@
   h2 {
     margin: 0;
   }
+}
+
+.panel__header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .panel__action {

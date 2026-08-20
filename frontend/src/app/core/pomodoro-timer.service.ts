@@ -11,17 +11,20 @@ interface PersistedTimerState {
 
 const STORAGE_KEY = 'pomocard.pomodoro.running';
 
-// Por momento, tempos de 1 minuto (foco e descansos) só para agilizar testes.
-const DURATION_MINUTES = 1;
-const SHORT_BREAK_MINUTES = 1;
-const LONG_BREAK_MINUTES = 1;
-const LONG_BREAK_EVERY = 2;
+// Sequência padrão de 4 ciclos: Foco(25) -> Curto(5) três vezes, e o 4º Foco(25)
+// encerra em Longo(30) — depois disso o loop reinicia em Foco automaticamente.
+// completedFocusSessions nunca é resetado; é o `% LONG_BREAK_EVERY` em
+// advancePhase() que faz o loop de ciclos se repetir indefinidamente.
+const DURATION_MINUTES = 25;
+const SHORT_BREAK_MINUTES = 5;
+const LONG_BREAK_MINUTES = 30;
+const LONG_BREAK_EVERY = 4;
 
 /**
  * Timer Pomodoro do fluxo principal (regra de negócio 1: Timer -> Modal de
- * Criação de Flashcard -> Recompensa em Mana/XP), com o ciclo clássico de
+ * Criação de Flashcard -> Recompensa em Gold/XP), com o ciclo clássico de
  * descansos: 5 min de descanso curto após cada foco, e um descanso longo de
- * 15 min a cada duas sessões de foco completadas.
+ * 30 min a cada quatro sessões de foco completadas (ver LONG_BREAK_EVERY).
  *
  * É um serviço singleton (não um estado do componente) de propósito: o
  * Angular Router destrói e recria o DashboardComponent (e qualquer filho

@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface PomodoroRewardResponse {
-  manaEarned: number;
+  goldEarned: number;
   xpEarned: number;
-  staminaMultiplier: number;
+  manaMultiplier: number;
 }
 
 export interface SrsState {
@@ -17,14 +17,14 @@ export interface SrsState {
 
 export interface ReviewResponse {
   schedule: SrsState & { nextReviewAt: string };
-  manaEarned: number;
-  staminaMultiplier: number;
+  goldEarned: number;
+  manaMultiplier: number;
 }
 
 /**
- * Cliente HTTP para o Mana Service / SRS Service expostos pelo backend
+ * Cliente HTTP para o Gold Service / SRS Service expostos pelo backend
  * (ver backend/src/app.js). Mantém o dashboard desacoplado dos cálculos de
- * economia — o Angular só envia o evento (tempo de foco, stamina do dia) e
+ * economia — o Angular só envia o evento (tempo de foco, mana do dia) e
  * exibe a recompensa devolvida.
  */
 @Injectable({ providedIn: 'root' })

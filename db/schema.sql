@@ -30,12 +30,15 @@ create table public.users (
   avatar_key             text,              -- id do sprite/avatar pixel-art escolhido
   guild_id               uuid references public.guilds(id) on delete set null,
 
-  -- Economia / progressão
+  -- Economia / progressão. Nomes de coluna preservados por compatibilidade com dados já
+  -- gravados: no app (camada TS), `mana` é a moeda de recompensa e é exibida como "Gold";
+  -- `stamina_reset_on`/minutes_focused_today alimentam o recurso "Mana" (o limitador diário
+  -- de foco, antigo "Stamina") — ver o comentário no topo de player-state.service.ts.
   mana                   integer not null default 0 check (mana >= 0),
   xp                     integer not null default 0 check (xp >= 0),
   level                  integer not null default 1 check (level >= 1),
 
-  -- Stamina diária (regra Anti-Burnout — reseta por dia)
+  -- Mana diária (regra Anti-Burnout — reseta por dia)
   minutes_focused_today  integer not null default 0 check (minutes_focused_today >= 0),
   stamina_reset_on       date not null default current_date,
 

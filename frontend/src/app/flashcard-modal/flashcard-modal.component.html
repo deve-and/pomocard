@@ -1,7 +1,10 @@
 <div class="modal-overlay" role="presentation" (click)="cancel.emit()">
   <div class="modal pc-pixel-text" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
-    <h2>Pomodoro Concluído!</h2>
-    <p class="modal__subtitle">Registre o que você aprendeu em {{ focusMinutes }} min e receba sua recompensa.</p>
+    <h2>{{ focusMinutes > 0 ? 'Pomodoro Concluído!' : 'Nova Carta' }}</h2>
+    <p class="modal__subtitle" *ngIf="focusMinutes > 0">
+      Registre o que você aprendeu em {{ focusMinutes }} min e receba sua recompensa.
+    </p>
+    <p class="modal__subtitle" *ngIf="focusMinutes === 0">Adicione uma nova carta a um baralho, a qualquer momento.</p>
 
     <label class="modal__field">
       <span>Deck</span>

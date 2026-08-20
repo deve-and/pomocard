@@ -2,9 +2,9 @@
   <header class="review__header pc-pixel-text">
     <button class="review__back" type="button" (click)="backToDashboard()">&larr; Dashboard</button>
     <h1>{{ deckTitle() }}</h1>
-    <div class="hud__mana">
+    <div class="hud__gold">
       <span aria-hidden="true">◆</span>
-      <span>{{ player.mana() }}</span>
+      <span>{{ player.gold() }}</span>
     </div>
   </header>
 
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <p class="reward-chip pc-pixel-text" *ngIf="lastCardMana() !== null">+{{ lastCardMana() }} Mana</p>
+    <p class="reward-chip pc-pixel-text" *ngIf="lastCardGold() !== null">+{{ lastCardGold() }} Gold</p>
 
     <div class="review__actions" *ngIf="!isRevealed()">
       <button class="pixel-button" type="button" (click)="reveal()">Mostrar Resposta</button>
@@ -62,7 +62,7 @@
 
   <div class="panel review__summary" *ngIf="isSessionComplete()">
     <h2 class="pc-pixel-text">Fila Concluída!</h2>
-    <p class="review__summary-mana pc-pixel-text">+{{ sessionManaEarned() }} Mana</p>
+    <p class="review__summary-gold pc-pixel-text">+{{ sessionGoldEarned() }} Gold</p>
     <button class="pixel-button" type="button" (click)="backToDashboard()">Voltar ao Dashboard</button>
   </div>
 </div>

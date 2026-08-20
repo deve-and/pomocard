@@ -2,7 +2,7 @@
 
 const express = require('express');
 const cors = require('cors');
-const { calculateManaReward } = require('./services/manaService');
+const { calculateGoldReward } = require('./services/goldService');
 const { scheduleNextReview } = require('./services/srsService');
 
 // XP concedido por minuto de foco ao completar um Pomodoro (regra 1: Timer -> Modal -> Recompensa).
@@ -34,21 +34,21 @@ function createApp() {
       return res.status(400).json({ error: 'minutesFocusedTodayBeforeSession deve ser um número >= 0.' });
     }
 
-    const { manaEarned, staminaMultiplier } = calculateManaReward({
+    const { goldEarned, manaMultiplier } = calculateGoldReward({
       focusMinutes,
       cardQuality: CREATION_QUALITY_BASELINE,
       minutesFocusedTodayBeforeSession,
     });
 
     return res.json({
-      manaEarned,
+      goldEarned,
       xpEarned: Math.round(focusMinutes * XP_PER_FOCUS_MINUTE),
-      staminaMultiplier,
+      manaMultiplier,
     });
   });
 
   // Chamado ao revisar uma carta existente (fila de Spaced Repetition):
-  // recalcula o agendamento SM-2 e a Mana ("Boss Battle" para cartas difíceis).
+  // recalcula o agendamento SM-2 e o Gold ("Boss Battle" para cartas difíceis).
   app.post('/api/reviews', (req, res) => {
     const { quality, currentState, focusMinutes, minutesFocusedTodayBeforeSession, reviewedAt } = req.body ?? {};
 
@@ -68,13 +68,13 @@ function createApp() {
       reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
     });
 
-    const { manaEarned, staminaMultiplier } = calculateManaReward({
+    const { goldEarned, manaMultiplier } = calculateGoldReward({
       focusMinutes,
       cardQuality: quality,
       minutesFocusedTodayBeforeSession,
     });
 
-    return res.json({ schedule, manaEarned, staminaMultiplier });
+    return res.json({ schedule, goldEarned, manaMultiplier });
   });
 
   // eslint-disable-next-line no-unused-vars

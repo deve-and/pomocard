@@ -225,7 +225,7 @@ export class DeckCatalogService {
     card: ReviewCard,
     quality: number,
     schedule: { easinessFactor: number; repetitions: number; intervalDays: number; nextReviewAt: string },
-    manaEarned: number
+    goldEarned: number
   ): Promise<void> {
     const userId = this.auth.userId();
     if (!userId) return;
@@ -249,7 +249,7 @@ export class DeckCatalogService {
       quality,
       easiness_factor_after: schedule.easinessFactor,
       interval_days_after: schedule.intervalDays,
-      mana_earned: manaEarned,
+      mana_earned: goldEarned, // coluna do banco mantém o nome antigo (Mana -> Gold), ver player-state.service.ts
     });
     if (reviewError) console.error('Falha ao registrar log de revisão', reviewError);
 
