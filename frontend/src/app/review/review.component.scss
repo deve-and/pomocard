@@ -142,6 +142,11 @@
 
 .pixel-button {
   @include pixel-button;
+  // O botão "Gerenciar Baralho" do estado vazio é um <a> (navega, não só dispara um
+  // evento) — sem isso herdaria sublinhado e não centralizaria como um botão de verdade.
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
 }
 
 .review__ratings {

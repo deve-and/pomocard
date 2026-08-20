@@ -257,6 +257,20 @@
 .deck-card {
   @include pixel-panel(var(--pc-bg-alt));
   padding: 12px;
+  // O card inteiro é clicável agora (ver openDeck() em dashboard.component.ts) — não
+  // só o badge/link de antes.
+  cursor: pointer;
+  transition: transform var(--pc-duration) var(--pc-ease), box-shadow var(--pc-duration) var(--pc-ease);
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pc-mana);
+    outline-offset: 2px;
+  }
 }
 
 .deck-card__title {
@@ -279,19 +293,19 @@
 }
 
 .deck-card__badge {
+  // Só um indicador agora (não é mais um link próprio) — o card inteiro já é o alvo
+  // do clique, então sem cursor/hover destacando o badge isoladamente.
   display: inline-block;
   padding: 4px 8px;
   font-size: 10px;
   background: var(--pc-hp);
   color: var(--pc-text);
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform var(--pc-duration) var(--pc-ease), background var(--pc-duration) var(--pc-ease);
+}
 
-  &:hover {
-    background: var(--pc-boss);
-    transform: translateY(-2px);
-  }
+.deck-card__badge--empty {
+  background: transparent;
+  border: 1px solid var(--pc-panel-border-light);
+  color: var(--pc-text-muted);
 }
 
 .deck-card__manage {

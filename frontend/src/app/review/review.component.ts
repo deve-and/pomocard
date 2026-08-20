@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { DeckCatalogService, ReviewCard } from '../core/deck-catalog.service';
 import { PlayerStateService } from '../core/player-state.service';
@@ -36,7 +36,7 @@ const REWARD_CHIP_DURATION_MS = 1500;
 @Component({
   selector: 'pc-review',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './review.component.html',
   styleUrl: './review.component.scss',
 })

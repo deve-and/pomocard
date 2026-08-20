@@ -76,18 +76,27 @@
         Você ainda não tem nenhum deck. Crie o primeiro para começar!
       </p>
       <ul class="deck-list">
-        <li class="deck-card" *ngFor="let deck of deckCatalog.decks()">
+        <li
+          class="deck-card"
+          *ngFor="let deck of deckCatalog.decks()"
+          role="button"
+          tabindex="0"
+          (click)="openDeck(deck)"
+          (keyup.enter)="openDeck(deck)"
+          (keyup.space)="openDeck(deck)"
+        >
           <p class="deck-card__title">{{ deck.title }}</p>
           <p class="deck-card__meta">{{ deck.cardCount }} cartas</p>
           <div class="deck-card__actions">
-            <a
-              class="deck-card__badge"
-              *ngIf="deckCatalog.dueCount(deck.id) > 0"
-              [routerLink]="['/review', deck.id]"
-            >
+            <span class="deck-card__badge" *ngIf="deckCatalog.dueCount(deck.id) > 0">
               {{ deckCatalog.dueCount(deck.id) }} para revisar
+            </span>
+            <span class="deck-card__badge deck-card__badge--empty" *ngIf="deckCatalog.dueCount(deck.id) === 0">
+              Tudo em dia
+            </span>
+            <a class="deck-card__manage" [routerLink]="['/decks', deck.id]" (click)="$event.stopPropagation()">
+              Gerenciar
             </a>
-            <a class="deck-card__manage" [routerLink]="['/decks', deck.id]">Gerenciar</a>
           </div>
         </li>
       </ul>

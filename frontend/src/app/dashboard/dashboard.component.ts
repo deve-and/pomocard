@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
-import { DeckCatalogService } from '../core/deck-catalog.service';
+import { DeckCatalogService, DeckSummary } from '../core/deck-catalog.service';
 import { PlayerStateService } from '../core/player-state.service';
 import { PomodoroTimerService } from '../core/pomodoro-timer.service';
 import { RewardService } from '../core/reward.service';
@@ -28,6 +28,7 @@ export class DashboardComponent {
   private readonly pomodoroTimer = inject(PomodoroTimerService);
   private readonly rewardService = inject(RewardService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   // Guildas ainda não migraram para o Supabase (public.guild_consistency_rankings
   // já existe no schema) — próximo passo natural depois deste.
@@ -66,6 +67,15 @@ export class DashboardComponent {
       },
       { allowSignalWrites: true }
     );
+  }
+
+  /**
+   * Clique unificado no card do baralho: sempre entra na tela de revisão, que já
+   * decide sozinha entre a fila ativa (se houver cartas devidas hoje) ou o estado
+   * vazio com link pra gerenciar o baralho (se não houver) — ver review.component.ts.
+   */
+  openDeck(deck: DeckSummary): void {
+    this.router.navigate(['/review', deck.id]);
   }
 
   onSessionCompleted(focusMinutes: number): void {

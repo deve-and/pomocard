@@ -82,6 +82,9 @@ export class PomodoroTimerService {
   start(): void {
     if (this.isRunning()) return;
     this.audio.unlock();
+    // Clicar em Iniciar/Retomar é a interação que deve calar na hora um alerta de
+    // "fase concluída" que ainda estivesse repetindo (ver advancePhase()).
+    this.audio.stopRepeatingAlert();
     this.beginCountdown(Date.now() + this.remainingSeconds() * 1000);
   }
 
@@ -100,6 +103,7 @@ export class PomodoroTimerService {
   /** Encerra o descanso atual na marra, sem esperar o relógio zerar. */
   skipBreak(): void {
     if (!this.isBreak()) return;
+    this.audio.stopRepeatingAlert();
     this.advancePhase();
   }
 
@@ -176,7 +180,10 @@ export class PomodoroTimerService {
     this.pause();
 
     if (this.phase() === 'focus') {
-      this.audio.playFocusComplete();
+      // Alerta repete sozinho (até silenciar numa próxima interação, ver start()/
+      // skipBreak()) em vez de tocar uma vez só — o usuário pode não estar olhando
+      // pra tela no instante exato em que o foco termina.
+      this.audio.playRepeatingAlert(() => this.audio.playFocusComplete());
       this.pendingFocusReward.set(DURATION_MINUTES);
 
       const completed = this.completedFocusSessions() + 1;
@@ -186,7 +193,7 @@ export class PomodoroTimerService {
       this.phase.set(nextPhase);
       this.remainingSeconds.set(this.phaseDurationMinutes(nextPhase) * 60);
     } else {
-      this.audio.playBreakComplete();
+      this.audio.playRepeatingAlert(() => this.audio.playBreakComplete());
       this.phase.set('focus');
       this.remainingSeconds.set(DURATION_MINUTES * 60);
     }

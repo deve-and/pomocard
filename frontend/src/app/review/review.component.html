@@ -13,7 +13,7 @@
   <div class="panel review__empty" *ngIf="!isLoading() && totalCount() === 0">
     <p class="pc-pixel-text">Tudo em dia por aqui!</p>
     <p class="review__empty-hint">Não há cartas para revisar neste deck agora.</p>
-    <button class="pixel-button" type="button" (click)="backToDashboard()">Voltar ao Dashboard</button>
+    <a class="pixel-button" [routerLink]="['/decks', deckId()]">Gerenciar Baralho</a>
   </div>
 
   <ng-container *ngIf="!isLoading() && totalCount() > 0 && !isSessionComplete()">
