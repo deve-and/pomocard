@@ -19,6 +19,8 @@ export interface ReviewResponse {
   schedule: SrsState & { nextReviewAt: string };
   goldEarned: number;
   manaMultiplier: number;
+  /** true quando o Gold foi zerado pelo cooldown de 24h da carta, não por ter errado. */
+  goldBlockedByCooldown: boolean;
 }
 
 /**
@@ -45,13 +47,15 @@ export class RewardService {
     quality: number,
     currentState: SrsState,
     focusMinutes: number,
-    minutesFocusedTodayBeforeSession: number
+    minutesFocusedTodayBeforeSession: number,
+    lastGoldAwardedAt: string | null
   ): Observable<ReviewResponse> {
     return this.http.post<ReviewResponse>(`${environment.apiBaseUrl}/reviews`, {
       quality,
       currentState,
       focusMinutes,
       minutesFocusedTodayBeforeSession,
+      lastGoldAwardedAt,
     });
   }
 }

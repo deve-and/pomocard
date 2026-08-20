@@ -7,10 +7,10 @@ import { Injectable } from '@angular/core';
  */
 /** Quantas vezes o alerta de "timer concluído" repete antes de desistir sozinho. */
 const ALERT_MAX_REPEATS = 3;
-/** Janela reservada pra cada toque do alerta (o jingle em si dura bem menos que isso). */
-const ALERT_PLAY_WINDOW_MS = 1500;
+/** Janela reservada pra cada toque do alerta — cadência ágil e compacta, não bipes espaçados. */
+const ALERT_PLAY_WINDOW_MS = 300;
 /** Silêncio entre um toque do alerta e o próximo. */
-const ALERT_PAUSE_MS = 1000;
+const ALERT_PAUSE_MS = 200;
 
 @Injectable({ providedIn: 'root' })
 export class AudioService {

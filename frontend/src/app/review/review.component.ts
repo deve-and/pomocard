@@ -17,13 +17,14 @@ const REWARD_CHIP_DURATION_MS = 1500;
  * Difícil / Médio / Fácil). "Difícil" é a Boss Battle da regra de negócio —
  * paga mais Gold por exigir mais esforço de memória.
  *
- * Loop circular: cartas erradas são reinseridas no FINAL da fila local
- * (`queue`) — continuam na sessão pra revisão imediata, mas dão espaço às
- * outras cartas antes de voltar. O loop só encerra de duas formas: a fila
- * esvazia (todas as cartas foram acertadas nesta sessão) ou o usuário sai
- * manualmente pelo botão "Dashboard" no cabeçalho, salvando o progresso
- * parcial (cada resposta já foi persistida individualmente em
- * submitCardReview, não existe um "salvar no final").
+ * Fila prioritária: "Errou" é prioridade máxima e volta pro INÍCIO da fila local
+ * (`queue`) — é a próxima carta a aparecer, sem esperar as outras. Uma carta que já
+ * tinha sido considerada fácil noutra revisão desta sessão, se errada agora, também
+ * salta pro início como qualquer erro (o estado dela não guarda "nível anterior", só
+ * o resultado mais recente). O loop só encerra de duas formas: a fila esvazia (todas
+ * as cartas foram acertadas nesta sessão) ou o usuário sai manualmente pelo botão
+ * "Dashboard" no cabeçalho, salvando o progresso parcial (cada resposta já foi
+ * persistida individualmente em submitCardReview, não existe um "salvar no final").
  *
  * Isso é feito só com reatribuição de array num signal — nenhuma
  * assinatura/timer fica presa a uma carta específica, então não há nada pra
@@ -93,7 +94,13 @@ export class ReviewComponent implements OnDestroy {
 
     try {
       const { goldEarned, schedule } = await firstValueFrom(
-        this.rewardService.submitReview(quality, card.srsState, REVIEW_MINUTES_PER_CARD, minutesBefore)
+        this.rewardService.submitReview(
+          quality,
+          card.srsState,
+          REVIEW_MINUTES_PER_CARD,
+          minutesBefore,
+          card.lastGoldAwardedAt
+        )
       );
 
       // A revisão paga em Gold (peso de dificuldade); XP fica reservado à
@@ -116,14 +123,16 @@ export class ReviewComponent implements OnDestroy {
           repetitions: schedule.repetitions,
           intervalDays: schedule.intervalDays,
         },
+        // Só avança se o Gold foi realmente pago agora — permanece igual quando zerou por
+        // erro ou por cooldown, senão o próximo acerto seria bloqueado à toa.
+        lastGoldAwardedAt: goldEarned > 0 ? new Date().toISOString() : card.lastGoldAwardedAt,
       };
       await this.deckCatalog.submitCardReview(updatedCard, quality, schedule, goldEarned);
 
       if (quality < 3) {
-        // Errou: volta pra Caixa 1 (ver srsService no backend) e continua no loop de
-        // estudo ativo — reinserida no FINAL da fila da sessão, pra ser respondida de
-        // novo antes de finalizar, sem repetir a mesma carta imediatamente em seguida.
-        this.queue.update((cards) => [...cards.slice(1), updatedCard]);
+        // Errou: volta pra Caixa 1 (ver srsService no backend) e é a prioridade máxima do
+        // loop de estudo ativo — salta pro INÍCIO da fila da sessão, é a próxima a aparecer.
+        this.queue.update((cards) => [updatedCard, ...cards.slice(1)]);
       } else {
         // Acertou: sobe uma Caixa e sai da rotação desta sessão — já tem uma nova data
         // de agendamento salva, não volta a aparecer hoje.

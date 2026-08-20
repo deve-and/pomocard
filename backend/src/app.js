@@ -50,7 +50,8 @@ function createApp() {
   // Chamado ao revisar uma carta existente (fila de Spaced Repetition):
   // recalcula o agendamento Leitner e o Gold ("Boss Battle" para cartas difíceis).
   app.post('/api/reviews', (req, res) => {
-    const { quality, currentState, focusMinutes, minutesFocusedTodayBeforeSession, reviewedAt } = req.body ?? {};
+    const { quality, currentState, focusMinutes, minutesFocusedTodayBeforeSession, reviewedAt, lastGoldAwardedAt } =
+      req.body ?? {};
 
     if (!Number.isInteger(quality) || quality < 0 || quality > 5) {
       return res.status(400).json({ error: 'quality deve ser um inteiro entre 0 e 5.' });
@@ -62,19 +63,25 @@ function createApp() {
       return res.status(400).json({ error: 'minutesFocusedTodayBeforeSession deve ser um número >= 0.' });
     }
 
+    const now = reviewedAt ? new Date(reviewedAt) : new Date();
+
     const schedule = scheduleNextReview({
       quality,
       currentState: currentState ?? {},
-      reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
+      reviewedAt: now,
     });
 
-    const { goldEarned, manaMultiplier } = calculateGoldReward({
+    // lastGoldAwardedAt vem do próprio cartão (public.flashcards.last_gold_awarded_at) —
+    // é o que permite o cooldown de 24h por carta em vez de por usuário ou sessão.
+    const { goldEarned, manaMultiplier, goldBlockedByCooldown } = calculateGoldReward({
       focusMinutes,
       cardQuality: quality,
       minutesFocusedTodayBeforeSession,
+      lastGoldAwardedAt: lastGoldAwardedAt ?? null,
+      now,
     });
 
-    return res.json({ schedule, goldEarned, manaMultiplier });
+    return res.json({ schedule, goldEarned, manaMultiplier, goldBlockedByCooldown });
   });
 
   // eslint-disable-next-line no-unused-vars

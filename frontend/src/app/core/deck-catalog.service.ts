@@ -15,6 +15,8 @@ export interface ReviewCard {
   front: string;
   back: string;
   srsState: SrsState;
+  /** Última vez que ESTA carta rendeu Gold (cooldown de 24h) — null se nunca rendeu. */
+  lastGoldAwardedAt: string | null;
 }
 
 interface DeckRow {
@@ -31,6 +33,7 @@ interface FlashcardRow {
   easiness_factor: number;
   repetitions: number;
   interval_days: number;
+  last_gold_awarded_at: string | null;
 }
 
 function mapFlashcardRow(row: FlashcardRow): ReviewCard {
@@ -44,6 +47,7 @@ function mapFlashcardRow(row: FlashcardRow): ReviewCard {
       repetitions: row.repetitions,
       intervalDays: row.interval_days,
     },
+    lastGoldAwardedAt: row.last_gold_awarded_at,
   };
 }
 
@@ -120,7 +124,7 @@ export class DeckCatalogService {
   async getDueCards(deckId: string): Promise<ReviewCard[]> {
     const { data, error } = await this.supabase
       .from('flashcards')
-      .select('id, deck_id, front_text, back_text, easiness_factor, repetitions, interval_days')
+      .select('id, deck_id, front_text, back_text, easiness_factor, repetitions, interval_days, last_gold_awarded_at')
       .eq('deck_id', deckId)
       .lte('next_review_at', new Date().toISOString())
       .order('next_review_at')
@@ -138,7 +142,7 @@ export class DeckCatalogService {
   async getDeckFlashcards(deckId: string): Promise<ReviewCard[]> {
     const { data, error } = await this.supabase
       .from('flashcards')
-      .select('id, deck_id, front_text, back_text, easiness_factor, repetitions, interval_days')
+      .select('id, deck_id, front_text, back_text, easiness_factor, repetitions, interval_days, last_gold_awarded_at')
       .eq('deck_id', deckId)
       .order('created_at')
       .returns<FlashcardRow[]>();
@@ -239,6 +243,9 @@ export class DeckCatalogService {
         next_review_at: schedule.nextReviewAt,
         last_reviewed_at: new Date().toISOString(),
         last_quality: quality,
+        // Só avança o cooldown quando Gold foi realmente pago desta vez — uma revisão sem
+        // Gold (errou, ou bloqueada pelo cooldown) não deve "resetar o relógio" de novo.
+        ...(goldEarned > 0 ? { last_gold_awarded_at: new Date().toISOString() } : {}),
       })
       .eq('id', card.id);
     if (updateError) console.error('Falha ao atualizar agendamento Leitner', updateError);

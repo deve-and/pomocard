@@ -14,6 +14,13 @@
 const BASE_GOLD_PER_MINUTE = 2;
 
 /**
+ * Cooldown anti-inflação: revisar a MESMA carta várias vezes no mesmo dia não deve
+ * render Gold ilimitado. Passado esse intervalo desde o último Gold ganho por uma
+ * carta específica, ela volta a valer Gold normalmente na próxima revisão correta.
+ */
+const GOLD_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+/**
  * Peso de dificuldade por nota de recall (0 a 5).
  * Notas < 3 são "falha" (a carta não foi vencida) e rendem apenas uma
  * recompensa de consolação. Notas 3-5 são "vitórias", e quanto mais difícil
@@ -90,11 +97,19 @@ function getManaMultiplier(minutesBeforeSession, focusMinutes) {
  *
  * @param {Object} params
  * @param {number} params.focusMinutes            Duração do Pomodoro / revisão, em minutos (> 0).
- * @param {number} params.cardQuality              Nota de recall da carta associada (0-5).
+ * @param {number} params.cardQuality              Nota de recall da carta associada (0-5). < 3 é "Errou" e nunca rende Gold.
  * @param {number} params.minutesFocusedTodayBeforeSession Minutos de foco já acumulados hoje pelo usuário, antes desta sessão (>= 0).
- * @returns {{ goldEarned: number, manaMultiplier: number, difficultyWeight: number }}
+ * @param {string|null} [params.lastGoldAwardedAt] ISO 8601 do último Gold ganho por ESTA carta (null se nunca ganhou). Ignorado numa falha.
+ * @param {Date} [params.now]                      Momento de referência pro cálculo do cooldown (default: agora).
+ * @returns {{ goldEarned: number, manaMultiplier: number, difficultyWeight: number, goldBlockedByCooldown: boolean }}
  */
-function calculateGoldReward({ focusMinutes, cardQuality, minutesFocusedTodayBeforeSession }) {
+function calculateGoldReward({
+  focusMinutes,
+  cardQuality,
+  minutesFocusedTodayBeforeSession,
+  lastGoldAwardedAt = null,
+  now = new Date(),
+}) {
   if (!Number.isFinite(focusMinutes) || focusMinutes <= 0) {
     throw new RangeError(`focusMinutes deve ser um número positivo, recebido: ${focusMinutes}`);
   }
@@ -107,17 +122,25 @@ function calculateGoldReward({ focusMinutes, cardQuality, minutesFocusedTodayBef
   const difficultyWeight = getDifficultyWeight(cardQuality);
   const manaMultiplier = getManaMultiplier(minutesFocusedTodayBeforeSession, focusMinutes);
 
-  const rawGold = focusMinutes * BASE_GOLD_PER_MINUTE * difficultyWeight * manaMultiplier;
+  // Errou (quality < 3): zero Gold, sem exceção — não existe mais "prêmio de consolação".
+  const isFailure = cardQuality < 3;
+  const goldBlockedByCooldown =
+    !isFailure && lastGoldAwardedAt !== null && now.getTime() - new Date(lastGoldAwardedAt).getTime() < GOLD_COOLDOWN_MS;
+
+  const rawGold =
+    isFailure || goldBlockedByCooldown ? 0 : focusMinutes * BASE_GOLD_PER_MINUTE * difficultyWeight * manaMultiplier;
 
   return {
     goldEarned: Math.round(rawGold),
     manaMultiplier: Number(manaMultiplier.toFixed(2)),
     difficultyWeight,
+    goldBlockedByCooldown,
   };
 }
 
 module.exports = {
   BASE_GOLD_PER_MINUTE,
+  GOLD_COOLDOWN_MS,
   DIFFICULTY_WEIGHTS,
   MANA_TIERS,
   getDifficultyWeight,

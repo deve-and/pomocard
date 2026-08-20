@@ -31,10 +31,53 @@ test('após 5h de foco no dia, multiplicador de fadiga é x0.25', () => {
   assert.equal(multiplier, 0.25);
 });
 
-test('falha na revisão (quality < 3) ainda concede gold de consolação, mas bem menor', () => {
-  const { goldEarned } = calculateGoldReward({ focusMinutes: 25, cardQuality: 1, minutesFocusedTodayBeforeSession: 0 });
-  assert.ok(goldEarned > 0);
-  assert.ok(goldEarned < 25 * 2); // menor que o gold base sem multiplicadores
+test('falha na revisão (quality < 3) concede exatamente zero Gold, sem prêmio de consolação', () => {
+  const { goldEarned, goldBlockedByCooldown } = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 1,
+    minutesFocusedTodayBeforeSession: 0,
+  });
+  assert.equal(goldEarned, 0);
+  assert.equal(goldBlockedByCooldown, false); // zerou por ser falha, não por cooldown
+});
+
+test('acerto dentro de 24h do último Gold ganho pela MESMA carta é bloqueado (ganho educativo, sem Gold)', () => {
+  const now = new Date('2026-01-02T00:00:00Z');
+  const lastGoldAwardedAt = new Date('2026-01-01T12:00:00Z').toISOString(); // 12h atrás
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 4,
+    minutesFocusedTodayBeforeSession: 0,
+    lastGoldAwardedAt,
+    now,
+  });
+  assert.equal(result.goldEarned, 0);
+  assert.equal(result.goldBlockedByCooldown, true);
+});
+
+test('acerto depois de 24h do último Gold ganho pela mesma carta volta a render Gold normalmente', () => {
+  const now = new Date('2026-01-02T13:00:00Z');
+  const lastGoldAwardedAt = new Date('2026-01-01T12:00:00Z').toISOString(); // 25h atrás
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 4,
+    minutesFocusedTodayBeforeSession: 0,
+    lastGoldAwardedAt,
+    now,
+  });
+  assert.ok(result.goldEarned > 0);
+  assert.equal(result.goldBlockedByCooldown, false);
+});
+
+test('carta nunca premiada antes (lastGoldAwardedAt null) nunca é bloqueada por cooldown', () => {
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 5,
+    minutesFocusedTodayBeforeSession: 0,
+    lastGoldAwardedAt: null,
+  });
+  assert.ok(result.goldEarned > 0);
+  assert.equal(result.goldBlockedByCooldown, false);
 });
 
 test('rejeita focusMinutes inválido', () => {

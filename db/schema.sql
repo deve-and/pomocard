@@ -103,13 +103,18 @@ create table public.flashcards (
   back_text        text not null,
   image_key        text,
 
-  -- Metadados SM-2 (SuperMemo 2)
+  -- Metadados de agendamento (algoritmo Leitner — ver comentário em srsService.js;
+  -- "repetitions" guarda o Nível da Caixa, 1-5, nome de coluna preservado do SM-2 antigo)
   easiness_factor  numeric(4,2) not null default 2.50 check (easiness_factor >= 1.30),
   interval_days    integer not null default 0 check (interval_days >= 0),
   repetitions      integer not null default 0 check (repetitions >= 0),
   next_review_at   timestamptz not null default now(),
   last_reviewed_at timestamptz,
-  last_quality     smallint check (last_quality between 0 and 5), -- última nota SM-2 (0=blackout .. 5=perfeito)
+  last_quality     smallint check (last_quality between 0 and 5), -- última nota (0=blackout .. 5=perfeito)
+
+  -- Cooldown anti-inflação de Gold (goldService.js): quando essa carta ganhou Gold pela
+  -- última vez. null = nunca ganhou, então a próxima revisão correta paga normalmente.
+  last_gold_awarded_at timestamptz,
 
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()

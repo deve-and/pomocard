@@ -69,6 +69,27 @@ test('POST /api/reviews combina o agendamento Leitner com a recompensa de gold',
   });
 });
 
+test('POST /api/reviews zera o Gold quando a mesma carta já ganhou Gold há menos de 24h', async () => {
+  await withServer(async (baseUrl) => {
+    const res = await fetch(`${baseUrl}/api/reviews`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        quality: 4,
+        currentState: { easinessFactor: 2.5, repetitions: 1, intervalDays: 1 },
+        focusMinutes: 10,
+        minutesFocusedTodayBeforeSession: 0,
+        lastGoldAwardedAt: new Date().toISOString(), // acabou de ganhar Gold por essa carta agora mesmo
+      }),
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.goldEarned, 0);
+    assert.equal(body.goldBlockedByCooldown, true);
+    assert.equal(body.schedule.repetitions, 2); // agendamento continua valendo (ganho educativo)
+  });
+});
+
 test('POST /api/reviews rejeita quality fora do intervalo', async () => {
   await withServer(async (baseUrl) => {
     const res = await fetch(`${baseUrl}/api/reviews`, {
