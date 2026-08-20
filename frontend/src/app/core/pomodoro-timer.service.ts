@@ -14,11 +14,10 @@ const STORAGE_KEY = 'pomocard.pomodoro.running';
 // Sequência de 4 ciclos: Foco -> Curto três vezes, e o 4º Foco encerra em Longo —
 // depois disso o loop reinicia em Foco automaticamente. completedFocusSessions
 // nunca é resetado; é o `% LONG_BREAK_EVERY` em advancePhase() que faz o loop de
-// ciclos se repetir indefinidamente. Durações em 1 minuto por momento, só para
-// agilizar testes — valores reais são Foco 25 / Curto 5 / Longo 30.
-const DURATION_MINUTES = 1;
-const SHORT_BREAK_MINUTES = 1;
-const LONG_BREAK_MINUTES = 1;
+// ciclos se repetir indefinidamente.
+const DURATION_MINUTES = 25;
+const SHORT_BREAK_MINUTES = 5;
+const LONG_BREAK_MINUTES = 30;
 const LONG_BREAK_EVERY = 4;
 
 /**
