@@ -241,7 +241,7 @@ export class DeckCatalogService {
         last_quality: quality,
       })
       .eq('id', card.id);
-    if (updateError) console.error('Falha ao atualizar agendamento SM-2', updateError);
+    if (updateError) console.error('Falha ao atualizar agendamento Leitner', updateError);
 
     const { error: reviewError } = await this.supabase.from('card_reviews').insert({
       flashcard_id: card.id,

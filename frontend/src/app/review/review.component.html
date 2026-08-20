@@ -45,14 +45,14 @@
 
     <div class="review__ratings" *ngIf="isRevealed()">
       <button class="rating-button rating-button--again" type="button" [disabled]="isSubmitting()" (click)="rate(1)">
-        Errei
+        Errou
       </button>
       <button class="rating-button rating-button--hard" type="button" [disabled]="isSubmitting()" (click)="rate(3)">
         <span>Difícil</span>
         <span class="rating-button__tag">Boss Battle</span>
       </button>
       <button class="rating-button rating-button--good" type="button" [disabled]="isSubmitting()" (click)="rate(4)">
-        Bom
+        Médio
       </button>
       <button class="rating-button rating-button--easy" type="button" [disabled]="isSubmitting()" (click)="rate(5)">
         Fácil

@@ -12,20 +12,26 @@ const REVIEW_MINUTES_PER_CARD = 1;
 const REWARD_CHIP_DURATION_MS = 1500;
 
 /**
- * Fila de revisão SM-2 (regra de negócio 3): mostra a frente da carta,
- * revela o verso com um flip, e o usuário classifica o recall (Errei /
- * Difícil / Bom / Fácil). "Difícil" é a Boss Battle da regra de negócio —
+ * Fila de revisão Leitner (regra de negócio 3): mostra a frente da carta,
+ * revela o verso com um flip, e o usuário classifica o recall (Errou /
+ * Difícil / Médio / Fácil). "Difícil" é a Boss Battle da regra de negócio —
  * paga mais Gold por exigir mais esforço de memória.
  *
- * Loop circular: cartas erradas voltam pro início da fila local (`queue`) e
- * são sempre as próximas a aparecer, até acertar ou o usuário sair pelo
- * botão "Dashboard" no cabeçalho. Isso é feito só com reatribuição de array
- * num signal — nenhuma assinatura/timer fica presa a uma carta específica,
- * então não há nada pra vazar por causa da fila em si. O único recurso com
- * ciclo de vida próprio é o setTimeout do toast de recompensa (ver rate()),
- * por isso o handle é guardado e limpo em ngOnDestroy: se o usuário sair do
- * loop bem no instante em que o toast estava de saída, o timer não fica
- * "vivo" segurando uma referência ao componente já destruído.
+ * Loop circular: cartas erradas são reinseridas no FINAL da fila local
+ * (`queue`) — continuam na sessão pra revisão imediata, mas dão espaço às
+ * outras cartas antes de voltar. O loop só encerra de duas formas: a fila
+ * esvazia (todas as cartas foram acertadas nesta sessão) ou o usuário sai
+ * manualmente pelo botão "Dashboard" no cabeçalho, salvando o progresso
+ * parcial (cada resposta já foi persistida individualmente em
+ * submitCardReview, não existe um "salvar no final").
+ *
+ * Isso é feito só com reatribuição de array num signal — nenhuma
+ * assinatura/timer fica presa a uma carta específica, então não há nada pra
+ * vazar por causa da fila em si. O único recurso com ciclo de vida próprio é
+ * o setTimeout do toast de recompensa (ver rate()), por isso o handle é
+ * guardado e limpo em ngOnDestroy: se o usuário sair do loop bem no instante
+ * em que o toast estava de saída, o timer não fica "vivo" segurando uma
+ * referência ao componente já destruído.
  */
 @Component({
   selector: 'pc-review',
@@ -101,7 +107,7 @@ export class ReviewComponent implements OnDestroy {
       this.rewardChipTimeout = setTimeout(() => this.lastCardGold.set(null), REWARD_CHIP_DURATION_MS);
 
       // A carta local precisa carregar o novo srsState retornado pelo backend: se ela for
-      // requeued (errou) e revisada de novo nesta mesma sessão, o próximo cálculo de SM-2
+      // requeued (errou) e revisada de novo nesta mesma sessão, o próximo cálculo de agendamento
       // tem que partir do estado pós-erro, não do estado com que a sessão começou.
       const updatedCard = {
         ...card,
@@ -114,12 +120,13 @@ export class ReviewComponent implements OnDestroy {
       await this.deckCatalog.submitCardReview(updatedCard, quality, schedule, goldEarned);
 
       if (quality < 3) {
-        // Errou: a carta é a "Boss Battle" da sessão — continua na fila e volta pro topo,
-        // sempre a próxima a ser lida, até ser vencida.
-        this.queue.update((cards) => [updatedCard, ...cards.slice(1)]);
+        // Errou: volta pra Caixa 1 (ver srsService no backend) e continua no loop de
+        // estudo ativo — reinserida no FINAL da fila da sessão, pra ser respondida de
+        // novo antes de finalizar, sem repetir a mesma carta imediatamente em seguida.
+        this.queue.update((cards) => [...cards.slice(1), updatedCard]);
       } else {
-        // Acertou: sai da rotação desta sessão (equivalente a ir pro fim do baralho — não
-        // volta a aparecer hoje).
+        // Acertou: sobe uma Caixa e sai da rotação desta sessão — já tem uma nova data
+        // de agendamento salva, não volta a aparecer hoje.
         this.queue.update((cards) => cards.slice(1));
       }
       this.isRevealed.set(false);

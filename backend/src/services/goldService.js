@@ -5,7 +5,7 @@
  * Calcula o Gold concedido ao final de uma sessão Pomodoro / revisão de carta,
  * combinando três fatores das regras de negócio do Pomocard:
  *   1. Tempo de foco (minutos do timer Pomodoro)
- *   2. Peso da dificuldade da carta (nota SM-2 — cartas difíceis pagam mais, "Boss Battle")
+ *   2. Peso da dificuldade da carta (nota de recall — cartas difíceis pagam mais, "Boss Battle")
  *   3. Multiplicador de Mana diária (bônus de 100% nas primeiras 3h/dia, com
  *      redução progressiva depois disso — regra Anti-Burnout)
  */
@@ -14,7 +14,7 @@
 const BASE_GOLD_PER_MINUTE = 2;
 
 /**
- * Peso de dificuldade por nota SM-2 (0 a 5).
+ * Peso de dificuldade por nota de recall (0 a 5).
  * Notas < 3 são "falha" (a carta não foi vencida) e rendem apenas uma
  * recompensa de consolação. Notas 3-5 são "vitórias", e quanto mais difícil
  * o recall (nota mais baixa dentro da faixa de acerto), maior o prêmio —
@@ -47,7 +47,7 @@ const MANA_TIERS = Object.freeze([
 ]);
 
 /**
- * Retorna o peso de dificuldade para uma nota SM-2 (0-5).
+ * Retorna o peso de dificuldade para uma nota de recall (0-5).
  * @param {number} quality
  * @returns {number}
  */
@@ -90,7 +90,7 @@ function getManaMultiplier(minutesBeforeSession, focusMinutes) {
  *
  * @param {Object} params
  * @param {number} params.focusMinutes            Duração do Pomodoro / revisão, em minutos (> 0).
- * @param {number} params.cardQuality              Nota SM-2 da carta associada (0-5).
+ * @param {number} params.cardQuality              Nota de recall da carta associada (0-5).
  * @param {number} params.minutesFocusedTodayBeforeSession Minutos de foco já acumulados hoje pelo usuário, antes desta sessão (>= 0).
  * @returns {{ goldEarned: number, manaMultiplier: number, difficultyWeight: number }}
  */

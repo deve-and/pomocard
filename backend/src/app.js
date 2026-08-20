@@ -8,7 +8,7 @@ const { scheduleNextReview } = require('./services/srsService');
 // XP concedido por minuto de foco ao completar um Pomodoro (regra 1: Timer -> Modal -> Recompensa).
 const XP_PER_FOCUS_MINUTE = 4;
 
-// Nota de recall (escala SM-2) usada como linha de base ao recompensar a
+// Nota de recall (escala 0-5) usada como linha de base ao recompensar a
 // CRIAÇÃO de uma carta nova: ainda não houve revisão/nota real, então usamos
 // o peso equivalente a "Good" em vez de aplicar o bônus de dificuldade.
 const CREATION_QUALITY_BASELINE = 4;
@@ -48,7 +48,7 @@ function createApp() {
   });
 
   // Chamado ao revisar uma carta existente (fila de Spaced Repetition):
-  // recalcula o agendamento SM-2 e o Gold ("Boss Battle" para cartas difíceis).
+  // recalcula o agendamento Leitner e o Gold ("Boss Battle" para cartas difíceis).
   app.post('/api/reviews', (req, res) => {
     const { quality, currentState, focusMinutes, minutesFocusedTodayBeforeSession, reviewedAt } = req.body ?? {};
 

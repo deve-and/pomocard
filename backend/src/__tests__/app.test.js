@@ -49,7 +49,7 @@ test('POST /api/rewards/pomodoro-session rejeita focusMinutes inválido', async 
   });
 });
 
-test('POST /api/reviews combina o agendamento SM-2 com a recompensa de gold', async () => {
+test('POST /api/reviews combina o agendamento Leitner com a recompensa de gold', async () => {
   await withServer(async (baseUrl) => {
     const res = await fetch(`${baseUrl}/api/reviews`, {
       method: 'POST',
@@ -63,8 +63,8 @@ test('POST /api/reviews combina o agendamento SM-2 com a recompensa de gold', as
     });
     assert.equal(res.status, 200);
     const body = await res.json();
-    assert.equal(body.schedule.repetitions, 2);
-    assert.equal(body.schedule.intervalDays, 6);
+    assert.equal(body.schedule.repetitions, 2); // subiu da Caixa 1 pra Caixa 2
+    assert.equal(body.schedule.intervalDays, Math.round(1 * 2.5 * 0.8)); // intervalWeight de "Difícil"
     assert.ok(body.goldEarned > 0);
   });
 });
