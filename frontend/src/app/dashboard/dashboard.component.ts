@@ -53,13 +53,16 @@ export class DashboardComponent {
     // O timer roda num serviço singleton (sobrevive à navegação entre rotas), então uma
     // sessão de foco pode ter terminado enquanto o dashboard estava desmontado. O effect
     // roda assim que este componente é (re)criado e pega qualquer recompensa pendente.
-    effect(() => {
-      const focusMinutes = this.pomodoroTimer.pendingFocusReward();
-      if (focusMinutes !== null) {
-        this.pomodoroTimer.consumePendingFocusReward();
-        this.onSessionCompleted(focusMinutes);
-      }
-    });
+    effect(
+      () => {
+        const focusMinutes = this.pomodoroTimer.pendingFocusReward();
+        if (focusMinutes !== null) {
+          this.pomodoroTimer.consumePendingFocusReward();
+          this.onSessionCompleted(focusMinutes);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   onSessionCompleted(focusMinutes: number): void {

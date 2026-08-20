@@ -11,9 +11,10 @@ interface PersistedTimerState {
 
 const STORAGE_KEY = 'pomocard.pomodoro.running';
 
-const DURATION_MINUTES = 25;
-const SHORT_BREAK_MINUTES = 5;
-const LONG_BREAK_MINUTES = 15;
+// Por momento, tempos de 1 minuto (foco e descansos) só para agilizar testes.
+const DURATION_MINUTES = 1;
+const SHORT_BREAK_MINUTES = 1;
+const LONG_BREAK_MINUTES = 1;
 const LONG_BREAK_EVERY = 2;
 
 /**
