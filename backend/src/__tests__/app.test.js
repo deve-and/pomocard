@@ -100,3 +100,33 @@ test('POST /api/reviews rejeita quality fora do intervalo', async () => {
     assert.equal(res.status, 400);
   });
 });
+
+test('POST /api/streak/advance incrementa a sequência no dia seguinte', async () => {
+  await withServer(async (baseUrl) => {
+    const res = await fetch(`${baseUrl}/api/streak/advance`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        currentStreakDays: 3,
+        streakShields: 0,
+        lastStreakActivityOn: '2026-01-05',
+        today: '2026-01-06',
+      }),
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.currentStreakDays, 4);
+    assert.equal(body.lastStreakActivityOn, '2026-01-06');
+  });
+});
+
+test('POST /api/streak/advance rejeita currentStreakDays inválido', async () => {
+  await withServer(async (baseUrl) => {
+    const res = await fetch(`${baseUrl}/api/streak/advance`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ currentStreakDays: -1, streakShields: 0, lastStreakActivityOn: null, today: '2026-01-06' }),
+    });
+    assert.equal(res.status, 400);
+  });
+});

@@ -25,6 +25,15 @@ export interface ReviewResponse {
   isCritical: boolean;
 }
 
+export interface StreakAdvanceResponse {
+  currentStreakDays: number;
+  streakShields: number;
+  lastStreakActivityOn: string;
+  shieldConsumed: boolean;
+  shieldAwarded: boolean;
+  streakBroken: boolean;
+}
+
 /**
  * Cliente HTTP para o Gold Service / SRS Service expostos pelo backend
  * (ver backend/src/app.js). Mantém o dashboard desacoplado dos cálculos de
@@ -58,6 +67,20 @@ export class RewardService {
       focusMinutes,
       minutesFocusedTodayBeforeSession,
       lastGoldAwardedAt,
+    });
+  }
+
+  advanceStreak(
+    currentStreakDays: number,
+    streakShields: number,
+    lastStreakActivityOn: string | null,
+    today: string
+  ): Observable<StreakAdvanceResponse> {
+    return this.http.post<StreakAdvanceResponse>(`${environment.apiBaseUrl}/streak/advance`, {
+      currentStreakDays,
+      streakShields,
+      lastStreakActivityOn,
+      today,
     });
   }
 }

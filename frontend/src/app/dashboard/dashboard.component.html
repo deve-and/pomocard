@@ -35,12 +35,28 @@
       <span>{{ player.gold() }}</span>
     </div>
 
+    <div class="hud__streak" [attr.aria-label]="player.currentStreakDays() + ' dias de sequência, ' + player.streakShields() + ' escudos de ofensiva'">
+      <span class="hud__streak-icon" aria-hidden="true">🔥</span>
+      <span>{{ player.currentStreakDays() }}</span>
+      <span class="hud__streak-shields">
+        <span
+          class="hud__streak-shield"
+          *ngFor="let pip of shieldPips"
+          [class.hud__streak-shield--filled]="pip <= player.streakShields()"
+          aria-hidden="true"
+          >🛡</span
+        >
+      </span>
+    </div>
+
     <button class="hud__sign-out" type="button" (click)="signOut()">Sair</button>
   </header>
 
   <p class="reward-toast pc-pixel-text" *ngIf="lastReward() as reward">
     +{{ reward.goldEarned }} Gold &nbsp;·&nbsp; +{{ reward.xpEarned }} XP
   </p>
+
+  <p class="streak-toast pc-pixel-text" *ngIf="streakToastMessage() as message">{{ message }}</p>
 
   <main class="dashboard__grid">
     <!-- Coluna lateral: cresce por conta própria, sem esticar o card de Decks -->

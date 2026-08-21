@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 import { DeckCatalogService, DeckSummary } from '../core/deck-catalog.service';
@@ -49,6 +49,24 @@ export class DashboardComponent {
 
   // Criação de deck
   readonly isDeckModalOpen = signal(false);
+
+  // Pips do indicador de Escudo de Ofensiva no HUD — precisa acompanhar
+  // MAX_STREAK_SHIELDS do backend (streakService.js), não há como importar
+  // a constante direto (deployables separados).
+  readonly shieldPips = [1, 2];
+
+  readonly streakToastMessage = computed(() => {
+    switch (this.player.streakEvent()) {
+      case 'shield-awarded':
+        return '🛡 Escudo de Ofensiva conquistado! Ele perdoa 1 dia perdido no futuro.';
+      case 'shield-consumed':
+        return '🛡 Escudo usado! Sua sequência sobreviveu a um dia perdido.';
+      case 'streak-broken':
+        return 'Sequência reiniciada — sem problema, hoje começa uma nova!';
+      default:
+        return null;
+    }
+  });
 
   constructor() {
     this.player.loadProfile();

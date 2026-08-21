@@ -130,6 +130,31 @@
   padding: 8px 12px;
 }
 
+.hud__streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--pc-stamina);
+}
+
+.hud__streak-shields {
+  display: flex;
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.hud__streak-shield {
+  font-size: 11px;
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+.hud__streak-shield--filled {
+  opacity: 1;
+  filter: none;
+}
+
 // -----------------------------------------------------------------------
 // Grid principal
 // -----------------------------------------------------------------------
@@ -190,6 +215,19 @@
   color: var(--pc-gold);
   background: var(--pc-bg-alt);
   border: 3px solid var(--pc-gold);
+  animation: pc-pop-in var(--pc-duration) var(--pc-ease);
+}
+
+.streak-toast {
+  align-self: center;
+  max-width: 480px;
+  padding: 10px 20px;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--pc-stamina);
+  background: var(--pc-bg-alt);
+  border: 3px solid var(--pc-stamina);
   animation: pc-pop-in var(--pc-duration) var(--pc-ease);
 }
 

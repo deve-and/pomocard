@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const { calculateGoldReward } = require('./services/goldService');
 const { scheduleNextReview } = require('./services/srsService');
+const { advanceStreak } = require('./services/streakService');
 
 // XP concedido por minuto de foco ao completar um Pomodoro (regra 1: Timer -> Modal -> Recompensa).
 const XP_PER_FOCUS_MINUTE = 4;
@@ -87,6 +88,37 @@ function createApp() {
     return res.json({ schedule, goldEarned, manaMultiplier, goldBlockedByCooldown, isCritical });
   });
 
+  // Chamado no primeiro registro de foco (Pomodoro concluído OU carta revisada) do dia
+  // — ver player-state.service.ts, addFocusMinutes só chama isto quando o dia mudou.
+  app.post('/api/streak/advance', (req, res) => {
+    const { currentStreakDays, streakShields, lastStreakActivityOn, today } = req.body ?? {};
+
+    if (!isNonNegativeInteger(currentStreakDays)) {
+      return res.status(400).json({ error: 'currentStreakDays deve ser um inteiro >= 0.' });
+    }
+    if (!isNonNegativeInteger(streakShields)) {
+      return res.status(400).json({ error: 'streakShields deve ser um inteiro >= 0.' });
+    }
+    if (typeof today !== 'string') {
+      return res.status(400).json({ error: 'today é obrigatório, no formato YYYY-MM-DD.' });
+    }
+    if (lastStreakActivityOn !== null && lastStreakActivityOn !== undefined && typeof lastStreakActivityOn !== 'string') {
+      return res.status(400).json({ error: 'lastStreakActivityOn deve ser uma string YYYY-MM-DD ou null.' });
+    }
+
+    try {
+      const result = advanceStreak({
+        currentStreakDays,
+        streakShields,
+        lastStreakActivityOn: lastStreakActivityOn ?? null,
+        today,
+      });
+      return res.json(result);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  });
+
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
     console.error(err);
@@ -102,6 +134,10 @@ function isPositiveNumber(value) {
 
 function isNonNegativeNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function isNonNegativeInteger(value) {
+  return Number.isInteger(value) && value >= 0;
 }
 
 module.exports = { createApp, XP_PER_FOCUS_MINUTE, CREATION_QUALITY_BASELINE };

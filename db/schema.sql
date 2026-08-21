@@ -42,6 +42,13 @@ create table public.users (
   minutes_focused_today  integer not null default 0 check (minutes_focused_today >= 0),
   stamina_reset_on       date not null default current_date,
 
+  -- Sequência diária de estudo + Escudo de Ofensiva (ver streakService.js): um dia
+  -- perdido não zera a sequência se houver escudo disponível (Core Drive 8 do
+  -- Octalysis, sem punição terminal). last_streak_activity_on null = nunca estudou.
+  current_streak_days    integer not null default 0 check (current_streak_days >= 0),
+  streak_shields         integer not null default 0 check (streak_shields >= 0 and streak_shields <= 2),
+  last_streak_activity_on date,
+
   created_at             timestamptz not null default now(),
   updated_at             timestamptz not null default now()
 );
