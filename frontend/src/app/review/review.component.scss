@@ -54,6 +54,42 @@
 }
 
 // -----------------------------------------------------------------------
+// Emboscada (Ato II) — ocupa o mesmo espaço do flip-card por uma duração fixa
+// (ver AMBUSH_DURATION_MS) antes da primeira carta da sessão aparecer.
+// -----------------------------------------------------------------------
+.ambush {
+  @include pixel-panel(var(--pc-bg-alt));
+  @include pixel-glow(var(--pc-hp));
+  width: 100%;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  animation: pc-pop-in var(--pc-duration) var(--pc-ease);
+
+  p {
+    margin: 0;
+    font-size: 20px;
+    color: var(--pc-hp);
+  }
+}
+
+.ambush__icon {
+  font-size: 32px;
+  animation: pc-pulse 380ms ease-in-out infinite;
+}
+
+.ambush__sub {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--pc-text-muted);
+  max-width: 320px;
+}
+
+// -----------------------------------------------------------------------
 // Flip card
 // -----------------------------------------------------------------------
 .flip-card {
@@ -155,7 +191,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  transition: transform var(--pc-duration) var(--pc-ease);
+  transition: transform 140ms var(--pc-ease-bounce);
   box-shadow:
     inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.25);
@@ -165,7 +201,7 @@
   }
 
   &:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.95);
     box-shadow:
       inset 4px 4px 0 0 rgba(0, 0, 0, 0.35),
       inset -4px -4px 0 0 rgba(255, 255, 255, 0.2);
@@ -179,6 +215,10 @@
 
 .rating-button--again {
   background: var(--pc-hp);
+  // #f4f1ea (--pc-text) sobre #ff5c5c (--pc-hp) dava só 2.68:1 — abaixo do
+  // mínimo AA (4.5:1). --pc-bg sobre a mesma cor rende 6.21:1 (AAA p/ texto
+  // grande), então o botão mais importante do fluxo de estudo passa a ser legível.
+  color: var(--pc-bg);
 }
 
 .rating-button--good {

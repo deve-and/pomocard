@@ -73,6 +73,32 @@ export class AudioService {
   }
 
   /**
+   * Rugido curto em glissando (grave → agudo, dente-de-serra) — dispara ao entrar
+   * numa fila de revisão com cartas pendentes, o equivalente sonoro de "monstros
+   * emergiram da escuridão do esquecimento". Só toca uma vez, sem repetição.
+   */
+  playEncounter(): void {
+    const ctx = this.getContext();
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = 'sawtooth';
+
+    const startTime = ctx.currentTime;
+    const duration = 0.3;
+    oscillator.frequency.setValueAtTime(140, startTime);
+    oscillator.frequency.linearRampToValueAtTime(520, startTime + duration);
+    gain.gain.setValueAtTime(0.16, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration + 0.05);
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.05);
+  }
+
+  /**
    * Toca `playOnce` em loop controlado (até ALERT_MAX_REPEATS vezes, com uma pausa
    * entre cada toque) em vez de uma única vez — o timer chegando a zero é o tipo de
    * evento que precisa continuar chamando atenção mesmo se o usuário não estiver

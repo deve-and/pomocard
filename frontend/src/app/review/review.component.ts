@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { AudioService } from '../core/audio.service';
 import { DeckCatalogService, ReviewCard } from '../core/deck-catalog.service';
 import { PlayerStateService } from '../core/player-state.service';
 import { RewardService } from '../core/reward.service';
@@ -10,6 +11,9 @@ import { RewardService } from '../core/reward.service';
 // Gold Service (backend), que sempre pondera tempo de foco x dificuldade x mana.
 const REVIEW_MINUTES_PER_CARD = 1;
 const REWARD_CHIP_DURATION_MS = 1500;
+// Duração da transição "Emboscada" ao entrar numa fila com cartas pendentes —
+// curta o bastante pra não atrasar o estudo, longa o bastante pra ser lida.
+const AMBUSH_DURATION_MS = 900;
 
 // A UI só tem dois botões (Acertei/Errei) — internamente ainda mandamos uma nota
 // 0-5 pro backend (Leitner + Gold já entendem essa escala), só fixamos os dois
@@ -66,9 +70,11 @@ export class ReviewComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly deckCatalog = inject(DeckCatalogService);
   private readonly rewardService = inject(RewardService);
+  private readonly audioService = inject(AudioService);
   readonly player = inject(PlayerStateService);
 
   private rewardChipTimeout?: ReturnType<typeof setTimeout>;
+  private ambushTimeout?: ReturnType<typeof setTimeout>;
   /** Cartas que já erraram nesta sessão — zeram Gold mesmo se acertadas depois (ver rate()). */
   private readonly failedThisSessionIds = new Set<string>();
 
@@ -81,6 +87,8 @@ export class ReviewComponent implements OnDestroy {
   readonly isSubmitting = signal(false);
   readonly sessionGoldEarned = signal(0);
   readonly lastCardGold = signal<number | null>(null);
+  /** Ato II: breve transição de "monstros emergindo" ao entrar numa fila com cartas — ver triggerAmbush(). */
+  readonly isAmbushActive = signal(false);
 
   readonly currentCard = computed<ReviewCard | null>(() => this.queue()[0] ?? null);
   readonly isEmpty = computed(() => !this.isLoading() && this.queue().length === 0);
@@ -92,9 +100,24 @@ export class ReviewComponent implements OnDestroy {
       this.isLoading.set(true);
       // Todas as cartas do baralho, não só as devidas — estudo disponível a
       // qualquer momento, sem bloqueio por horário ou limite diário.
-      this.queue.set(await this.deckCatalog.getDeckFlashcards(id));
+      const cards = await this.deckCatalog.getDeckFlashcards(id);
+      this.queue.set(cards);
       this.isLoading.set(false);
+      if (cards.length > 0) this.triggerAmbush();
     });
+  }
+
+  /**
+   * Ato II do loop de 3 atos (Foco → Emboscada → Batalha): um susto sonoro/visual
+   * curto ao entrar na fila, coerente com a leitura de "cartas pendentes = monstros
+   * emergindo da curva do esquecimento". Puramente decorativo — não atrasa nem
+   * bloqueia a leitura da primeira carta além da duração fixa da transição.
+   */
+  private triggerAmbush(): void {
+    this.isAmbushActive.set(true);
+    this.audioService.playEncounter();
+    clearTimeout(this.ambushTimeout);
+    this.ambushTimeout = setTimeout(() => this.isAmbushActive.set(false), AMBUSH_DURATION_MS);
   }
 
   reveal(): void {
@@ -183,5 +206,6 @@ export class ReviewComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     clearTimeout(this.rewardChipTimeout);
+    clearTimeout(this.ambushTimeout);
   }
 }

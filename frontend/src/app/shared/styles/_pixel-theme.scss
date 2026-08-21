@@ -29,6 +29,10 @@
   // Curva de movimento "arcade" — rápida no início, sem quicar suavemente.
   --pc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --pc-duration: 220ms;
+
+  // Curva com leve overshoot — usada só na volta do "squash" dos botões (game
+  // juice), nunca em transições de layout, pra não quicar a interface inteira.
+  --pc-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 // Glow de destaque atrás de um painel — profundidade sutil sem abandonar as
@@ -85,7 +89,9 @@
   image-rendering: pixelated;
 }
 
-// Botão estilo NES: sobe/desce ao pressionar, sem transições suaves de curva.
+// Botão estilo NES: sobe/desce ao pressionar. A transição só existe no eixo
+// transform (squash-and-stretch) e usa --pc-ease-bounce para a volta ter um
+// leve "pop" — o box-shadow continua trocando na hora, sem suavizar o degrau.
 @mixin pixel-button($bg: var(--pc-gold), $fg: #1a1428) {
   font-family: var(--pc-font-pixel);
   background: $bg;
@@ -93,6 +99,7 @@
   border: none;
   padding: 12px 16px;
   cursor: pointer;
+  transition: transform 140ms var(--pc-ease-bounce);
   box-shadow:
     inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.35);
@@ -101,13 +108,38 @@
     box-shadow:
       inset 4px 4px 0 0 rgba(0, 0, 0, 0.35),
       inset -4px -4px 0 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(2px);
+    transform: translateY(2px) scale(0.95);
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+
+// Tremor curto de tela — usado só na transição de "Emboscada" ao entrar numa
+// fila de revisão com cartas pendentes, nunca em erros/estados persistentes.
+@keyframes pc-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-6px, 3px);
+  }
+  40% {
+    transform: translate(5px, -4px);
+  }
+  60% {
+    transform: translate(-4px, -2px);
+  }
+  80% {
+    transform: translate(4px, 3px);
+  }
+}
+
+.pc-shake {
+  animation: pc-shake 380ms var(--pc-ease);
 }
 
 // Barra de progresso "estilo HUD de RPG" (XP, Mana)

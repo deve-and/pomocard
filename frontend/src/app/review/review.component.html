@@ -1,4 +1,4 @@
-<div class="review">
+<div class="review" [class.pc-shake]="isAmbushActive()">
   <header class="review__header pc-pixel-text">
     <button class="review__back" type="button" (click)="backToDashboard()">&larr; Dashboard</button>
     <h1>{{ deckTitle() }}</h1>
@@ -19,7 +19,13 @@
   <ng-container *ngIf="!isLoading() && !isEmpty()">
     <p class="review__session-gold pc-pixel-text">+{{ sessionGoldEarned() }} Gold nesta sessão</p>
 
-    <div class="flip-card" [class.is-flipped]="isRevealed()" *ngIf="currentCard() as card">
+    <div class="ambush pc-pixel-text" *ngIf="isAmbushActive()">
+      <span class="ambush__icon" aria-hidden="true">⚡</span>
+      <p>EMBOSCADA!</p>
+      <span class="ambush__sub">Cartas pendentes emergiram da curva do esquecimento</span>
+    </div>
+
+    <div class="flip-card" [class.is-flipped]="isRevealed()" *ngIf="currentCard() as card" [hidden]="isAmbushActive()">
       <div class="flip-card__inner">
         <div class="flip-card__face flip-card__face--front">
           <span class="flip-card__hint">Pergunta</span>
@@ -34,11 +40,11 @@
 
     <p class="reward-chip pc-pixel-text" *ngIf="lastCardGold() !== null">+{{ lastCardGold() }} Gold</p>
 
-    <div class="review__actions" *ngIf="!isRevealed()">
+    <div class="review__actions" *ngIf="!isRevealed() && !isAmbushActive()">
       <button class="pixel-button" type="button" (click)="reveal()">Mostrar Resposta</button>
     </div>
 
-    <div class="review__ratings" *ngIf="isRevealed()">
+    <div class="review__ratings" *ngIf="isRevealed() && !isAmbushActive()">
       <button class="rating-button rating-button--again" type="button" [disabled]="isSubmitting()" (click)="rate(false)">
         Errei
       </button>
