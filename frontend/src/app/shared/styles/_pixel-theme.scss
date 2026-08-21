@@ -276,6 +276,38 @@
   animation: pc-shake 380ms var(--pc-ease);
 }
 
+// Divisor decorativo entre blocos grandes de conteúdo — referência: o traço
+// de madeira com gema central do boot.dev, traduzido pra pixel art (barra
+// em degradê + "gema" reaproveitando o mesmo glifo ◆ já usado como ícone de
+// Gold no HUD, mantendo o vocabulário visual consistente em vez de inventar
+// um novo símbolo). Puramente decorativo — sempre aria-hidden.
+.section-divider {
+  position: relative;
+  width: 100%;
+  height: var(--pc-px);
+  margin: 4px 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--pc-panel-border-light) 12%,
+    var(--pc-gold) 50%,
+    var(--pc-panel-border-light) 88%,
+    transparent
+  );
+}
+
+.section-divider__gem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 10px;
+  background: var(--pc-bg);
+  color: var(--pc-mana);
+  font-size: 14px;
+  text-shadow: 0 0 8px var(--pc-mana);
+}
+
 // Barra de progresso "estilo HUD de RPG" (XP, Mana)
 @mixin pixel-bar-track {
   height: 20px;
