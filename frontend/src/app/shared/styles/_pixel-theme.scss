@@ -27,10 +27,13 @@
   --pc-px: 4px;
 
   // Tamanho do corte de canto em escada dos painéis/modais/cartas (ver
-  // pixel-corners abaixo) — 6x a unidade de pixel: grande o bastante pra os 9
-  // degraus da curva (ver pixel-corners) terem espaço real de aparecer, não
-  // uma lasca fina onde a resolução extra passaria despercebida.
-  --pc-corner: calc(var(--pc-px) * 6);
+  // pixel-corners abaixo). Teto real: border/box-shadow (a "moldura" de
+  // pixel-panel) tem largura FIXA de --pc-px e não acompanha a curva do
+  // clip-path — acima de ~2.5x essa largura, o corte passa a "comer" a
+  // moldura nos cantos (ela é cortada junto, mas não é redesenhada pra
+  // seguir a curva). 10px é o maior valor testado que não deixa gap visível
+  // em nenhum painel/botão do app.
+  --pc-corner: 10px;
 
   // Curva de movimento "arcade" — rápida no início, sem quicar suavemente.
   --pc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
