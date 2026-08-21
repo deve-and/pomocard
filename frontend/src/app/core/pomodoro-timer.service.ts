@@ -75,6 +75,36 @@ export class PomodoroTimerService {
   private readonly onVisibilityChange = () => {
     if (document.visibilityState === 'visible' && this.isRunning()) this.tick();
   };
+  /**
+   * Sincroniza esta aba sempre que OUTRA aba muda o cronômetro compartilhado
+   * (STORAGE_KEY) — sem isso, duas abas abertas ao mesmo tempo rodariam
+   * contagens independentes e cada uma disparia seu próprio alerta sonoro e
+   * sua própria recompensa quando a fase terminasse. O evento `storage` só
+   * dispara em abas QUE NÃO fizeram a escrita, então não há risco de loop.
+   */
+  private readonly onStorageChange = (event: StorageEvent) => {
+    if (event.key !== STORAGE_KEY) return;
+
+    if (event.newValue === null) {
+      // Outra aba pausou ou concluiu a fase — só para a contagem local
+      // também. Não reprocessa a conclusão (a aba que escreveu já tratou o
+      // alerta/recompensa); esta aba fica parada até o usuário interagir.
+      if (this.isRunning()) {
+        this.isRunning.set(false);
+        clearInterval(this.intervalHandle);
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
+      }
+      return;
+    }
+
+    try {
+      const saved: PersistedTimerState = JSON.parse(event.newValue);
+      clearInterval(this.intervalHandle);
+      this.applyPersistedRunningState(saved);
+    } catch {
+      // Valor corrompido — ignora, a próxima escrita válida corrige.
+    }
+  };
 
   readonly focusMinutesSetting = signal(DEFAULT_FOCUS_MINUTES);
   readonly shortBreakMinutesSetting = signal(DEFAULT_SHORT_BREAK_MINUTES);
@@ -126,6 +156,7 @@ export class PomodoroTimerService {
   constructor() {
     this.loadSettingsFromStorage();
     this.resumeFromStorageIfAny();
+    window.addEventListener('storage', this.onStorageChange);
   }
 
   get displayTime(): string {
@@ -142,6 +173,25 @@ export class PomodoroTimerService {
     // Clicar em Iniciar/Retomar é a interação que deve calar na hora um alerta de
     // "fase concluída" que ainda estivesse repetindo (ver advancePhase()).
     this.audio.stopRepeatingAlert();
+
+    // Antes de começar uma contagem nova, confere se já existe uma sessão válida
+    // salva por OUTRA aba (ex.: o usuário clicou Iniciar aqui sem saber que já
+    // tinha uma rodando em outra aba) — se existir, adota ela em vez de
+    // sobrescrever, pra não deixar duas contagens independentes brigando pelo
+    // mesmo STORAGE_KEY (ver onStorageChange/tick() pro resto da sincronização).
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const saved: PersistedTimerState = JSON.parse(raw);
+        if (saved.targetEndAt > Date.now()) {
+          this.applyPersistedRunningState(saved);
+          return;
+        }
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
     this.beginCountdown(Date.now() + this.remainingSeconds() * 1000);
   }
 
@@ -281,6 +331,16 @@ export class PomodoroTimerService {
       return;
     }
 
+    this.applyPersistedRunningState(saved);
+  }
+
+  /**
+   * Adota um estado de contagem salvo (por esta aba numa recarga, ou por
+   * OUTRA aba via start()/onStorageChange) — reaproveitado nos três casos
+   * pra manter a mesma lógica de "sessão expirada enquanto isso" num único
+   * lugar.
+   */
+  private applyPersistedRunningState(saved: PersistedTimerState): void {
     this.phase.set(saved.phase);
     this.completedFocusSessions.set(saved.completedFocusSessions);
     // Fallback pra estado salvo antes desta duração congelada existir.
@@ -291,8 +351,8 @@ export class PomodoroTimerService {
       this.remainingSeconds.set(secondsLeft);
       this.beginCountdown(saved.targetEndAt);
     } else {
-      // A fase terminou enquanto a aba estava fechada/suspensa — conclui direto,
-      // como se o relógio tivesse chegado a zero agora.
+      // A sessão já tinha terminado quando foi adotada (aba fechada/suspensa
+      // por tempo suficiente, ou outra aba concluiu bem antes desta notar).
       this.remainingSeconds.set(0);
       this.advancePhase();
     }
@@ -302,6 +362,28 @@ export class PomodoroTimerService {
     const secondsLeft = Math.max(0, Math.round((this.targetEndAt - Date.now()) / 1000));
     if (secondsLeft <= 0) {
       this.remainingSeconds.set(0);
+
+      // Confere se esta MESMA sessão (mesmo targetEndAt) ainda é a que está salva
+      // antes de processar a conclusão — se outra aba já chegou a zero primeiro e
+      // já processou (ou já começou uma sessão diferente), não reprocessa aqui,
+      // evitando alerta sonoro e recompensa duplicados.
+      const raw = localStorage.getItem(STORAGE_KEY);
+      let ownsCurrentSession = false;
+      if (raw) {
+        try {
+          ownsCurrentSession = (JSON.parse(raw) as PersistedTimerState).targetEndAt === this.targetEndAt;
+        } catch {
+          // ignora — trata como não sendo mais dona da sessão
+        }
+      }
+
+      if (!ownsCurrentSession) {
+        this.isRunning.set(false);
+        clearInterval(this.intervalHandle);
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
+        return;
+      }
+
       this.pause();
       this.advancePhase();
       return;
