@@ -1,5 +1,5 @@
 <div class="modal-overlay" role="presentation" (click)="closed.emit()">
-  <div class="modal pc-pixel-text" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+  <div class="modal pc-pixel-text" data-quest-tag="Sistema" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
     <h2>Configurar Timer</h2>
 
     <p class="modal__hint" *ngIf="isRunning()">

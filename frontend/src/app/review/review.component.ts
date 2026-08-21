@@ -26,6 +26,27 @@ const ERREI_QUALITY = 1;
 const ERROR_RESPACE_MIN_GAP = 2;
 const ERROR_RESPACE_MAX_GAP = 3;
 
+interface MonsterFlavor {
+  icon: string;
+  label: string;
+}
+
+// Reaproveita a Caixa Leitner (srsState.repetitions, 1 a 5 — ver srsService.js no
+// backend) como "nível de ameaça" puramente decorativo: caixa baixa = carta ainda
+// mal fixada = monstro fraco e comum; caixa alta = quase dominada = chefão raro.
+// Nenhum dado novo, só uma leitura RPG do que a Caixa já significa.
+const MONSTER_BY_BOX_LEVEL: Record<number, MonsterFlavor> = {
+  1: { icon: '👻', label: 'Fantasma da Dúvida' },
+  2: { icon: '🗡️', label: 'Goblin Batedor' },
+  3: { icon: '🛡️', label: 'Guerreiro Veterano' },
+  4: { icon: '🐺', label: 'Licantropo Ancião' },
+  5: { icon: '🐉', label: 'Chefão da Memória' },
+};
+
+function resolveMonster(boxLevel: number): MonsterFlavor {
+  return MONSTER_BY_BOX_LEVEL[boxLevel] ?? MONSTER_BY_BOX_LEVEL[1];
+}
+
 /**
  * Fila de revisão contínua (regra de negócio 3): mostra a frente da carta, revela o
  * verso com um flip, e o usuário classifica o recall com só duas opções — Acertei /
@@ -92,6 +113,9 @@ export class ReviewComponent implements OnDestroy {
 
   readonly currentCard = computed<ReviewCard | null>(() => this.queue()[0] ?? null);
   readonly isEmpty = computed(() => !this.isLoading() && this.queue().length === 0);
+  readonly currentMonster = computed(() => resolveMonster(this.currentCard()?.srsState.repetitions ?? 1));
+  /** Pips fixos de 1 a 5 pro indicador de Caixa Leitner do cabeçalho da carta. */
+  readonly boxPips = [1, 2, 3, 4, 5];
 
   constructor() {
     this.route.paramMap.subscribe(async (params) => {

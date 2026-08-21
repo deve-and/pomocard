@@ -145,6 +145,59 @@
 }
 
 // -----------------------------------------------------------------------
+// Cabeçalho de carta colecionável (só na frente): identifica a carta como um
+// "monstro" derivado da Caixa Leitner atual — ver resolveMonster() no .ts.
+// Empurra o resto do conteúdo pro topo (a face de trás continua centralizada).
+// -----------------------------------------------------------------------
+.flip-card__face--front {
+  justify-content: flex-start;
+  padding-top: 22px;
+}
+
+.flip-card__banner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--pc-panel-border-light);
+}
+
+.flip-card__monster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--pc-font-pixel);
+  font-size: 9px;
+  color: var(--pc-gold);
+  letter-spacing: 0.5px;
+  text-align: left;
+
+  span[aria-hidden] {
+    font-size: 16px;
+  }
+}
+
+.flip-card__box {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.flip-card__box-pip {
+  width: 8px;
+  height: 8px;
+  background: var(--pc-bg);
+  border: 1px solid var(--pc-panel-border-light);
+}
+
+.flip-card__box-pip--filled {
+  background: var(--pc-gold);
+  border-color: var(--pc-gold);
+}
+
+// -----------------------------------------------------------------------
 // Reward chip flutuante
 // -----------------------------------------------------------------------
 .reward-chip {

@@ -175,13 +175,33 @@
   animation: pc-pop-in var(--pc-duration) var(--pc-ease);
 }
 
-// Painel do próprio modal — mesma "carcaça" para todos os modais do app.
+// Painel do próprio modal — mesma "carcaça" para todos os modais do app,
+// reskinada como um pergaminho de missão: a "fita" pendurada no topo (via
+// pseudo-elemento lendo o atributo data-quest-tag do próprio elemento) dá
+// o contexto da missão sem duplicar o <h2> de cada modal.
 @mixin modal-surface($width: 480px) {
   @include pixel-panel(var(--pc-panel));
   @include pixel-glow(var(--pc-gold));
+  position: relative;
   width: min($width, 100%);
-  padding: 24px;
+  padding: 30px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  &::before {
+    content: attr(data-quest-tag);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--pc-gold);
+    color: #1a1428;
+    font-family: var(--pc-font-pixel);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    white-space: nowrap;
+    box-shadow: 0 var(--pc-px) 0 0 var(--pc-panel-border-dark);
+  }
 }

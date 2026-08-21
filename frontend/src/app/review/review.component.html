@@ -28,6 +28,19 @@
     <div class="flip-card" [class.is-flipped]="isRevealed()" *ngIf="currentCard() as card" [hidden]="isAmbushActive()">
       <div class="flip-card__inner">
         <div class="flip-card__face flip-card__face--front">
+          <div class="flip-card__banner">
+            <span class="flip-card__monster">
+              <span aria-hidden="true">{{ currentMonster().icon }}</span>
+              {{ currentMonster().label }}
+            </span>
+            <span class="flip-card__box" [attr.aria-label]="'Caixa ' + card.srsState.repetitions + ' de 5'">
+              <span
+                class="flip-card__box-pip"
+                *ngFor="let pip of boxPips"
+                [class.flip-card__box-pip--filled]="pip <= card.srsState.repetitions"
+              ></span>
+            </span>
+          </div>
           <span class="flip-card__hint">Pergunta</span>
           <p>{{ card.front }}</p>
         </div>
