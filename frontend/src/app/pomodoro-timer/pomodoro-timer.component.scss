@@ -46,3 +46,8 @@
 .pixel-button--skip {
   @include pixel-button(var(--pc-mana));
 }
+
+.pixel-button--settings {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+  font-size: 9px;
+}

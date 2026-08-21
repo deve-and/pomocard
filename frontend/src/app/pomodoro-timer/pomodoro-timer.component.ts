@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PomodoroTimerService } from '../core/pomodoro-timer.service';
+import { PomodoroSettingsModalComponent } from '../pomodoro-settings-modal/pomodoro-settings-modal.component';
 
 /**
  * View fina sobre o PomodoroTimerService: toda a lógica de contagem vive no
@@ -11,7 +12,7 @@ import { PomodoroTimerService } from '../core/pomodoro-timer.service';
 @Component({
   selector: 'pc-pomodoro-timer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PomodoroSettingsModalComponent],
   templateUrl: './pomodoro-timer.component.html',
   styleUrl: './pomodoro-timer.component.scss',
 })
@@ -24,6 +25,8 @@ export class PomodoroTimerComponent {
   readonly phaseLabel = this.timer.phaseLabel;
   readonly isBreak = this.timer.isBreak;
   readonly phaseDurationSeconds = this.timer.phaseDurationSeconds;
+
+  readonly isSettingsOpen = signal(false);
 
   get displayTime(): string {
     return this.timer.displayTime;

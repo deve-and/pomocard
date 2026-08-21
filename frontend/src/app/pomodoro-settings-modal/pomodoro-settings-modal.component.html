@@ -1,0 +1,47 @@
+<div class="modal-overlay" role="presentation" (click)="closed.emit()">
+  <div class="modal pc-pixel-text" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <h2>Configurar Timer</h2>
+
+    <p class="modal__hint" *ngIf="isRunning()">
+      Há uma fase em andamento — as mudanças só valem a partir do próximo ciclo.
+    </p>
+
+    <label class="modal__field">
+      <span>Foco (min)</span>
+      <input type="number" [(ngModel)]="focusMinutes" name="focusMinutes" [min]="focusMin" [max]="focusMax" />
+      <span class="modal__field-range">{{ focusMin }}–{{ focusMax }} min</span>
+      <p class="modal__error" *ngIf="focusError">{{ focusError }}</p>
+    </label>
+
+    <label class="modal__field">
+      <span>Descanso Curto (min)</span>
+      <input
+        type="number"
+        [(ngModel)]="shortBreakMinutes"
+        name="shortBreakMinutes"
+        [min]="breakMin"
+        [max]="breakMax"
+      />
+      <span class="modal__field-range">{{ breakMin }}–{{ breakMax }} min</span>
+      <p class="modal__error" *ngIf="shortBreakError">{{ shortBreakError }}</p>
+    </label>
+
+    <label class="modal__field">
+      <span>Descanso Longo (min)</span>
+      <input
+        type="number"
+        [(ngModel)]="longBreakMinutes"
+        name="longBreakMinutes"
+        [min]="breakMin"
+        [max]="breakMax"
+      />
+      <span class="modal__field-range">{{ breakMin }}–{{ breakMax }} min</span>
+      <p class="modal__error" *ngIf="longBreakError">{{ longBreakError }}</p>
+    </label>
+
+    <div class="modal__actions">
+      <button class="pixel-button pixel-button--ghost" type="button" (click)="closed.emit()">Cancelar</button>
+      <button class="pixel-button" type="button" (click)="save()">Salvar</button>
+    </div>
+  </div>
+</div>

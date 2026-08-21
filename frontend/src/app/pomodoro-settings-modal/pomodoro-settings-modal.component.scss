@@ -1,0 +1,69 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.modal-overlay {
+  @include modal-overlay;
+}
+
+.modal {
+  @include modal-surface(420px);
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--pc-gold);
+  }
+}
+
+.modal__hint {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--pc-mana);
+  background: var(--pc-bg-alt);
+  border: 2px solid var(--pc-mana);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--pc-text-muted);
+
+  input {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    padding: 8px;
+    background: var(--pc-bg);
+    color: var(--pc-text);
+    border: 3px solid var(--pc-panel-border-light);
+  }
+}
+
+.modal__field-range {
+  font-size: 10px;
+  color: var(--pc-text-muted);
+}
+
+.modal__error {
+  margin: 0;
+  font-size: 11px;
+  color: var(--pc-hp);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.pixel-button--ghost {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+}

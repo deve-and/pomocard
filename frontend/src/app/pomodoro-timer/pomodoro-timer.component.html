@@ -12,5 +12,10 @@
     <button class="pixel-button pixel-button--skip" type="button" *ngIf="isBreak()" (click)="skipBreak()">
       Pular Descanso
     </button>
+    <button class="pixel-button pixel-button--settings" type="button" (click)="isSettingsOpen.set(true)">
+      ⚙ Configurar
+    </button>
   </div>
+
+  <pc-pomodoro-settings-modal *ngIf="isSettingsOpen()" (closed)="isSettingsOpen.set(false)"></pc-pomodoro-settings-modal>
 </div>
