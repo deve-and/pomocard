@@ -40,29 +40,17 @@
   color: var(--pc-gold);
 }
 
-// -----------------------------------------------------------------------
-// Progresso
-// -----------------------------------------------------------------------
 .review__loading {
   color: var(--pc-text-muted);
   font-size: 12px;
 }
 
-.review__progress {
+// Loop contínuo não tem "progresso" (nada é removido da fila, só reordenado) — só um
+// contador do que essa sessão já rendeu, pra dar algum feedback acumulado.
+.review__session-gold {
   align-self: flex-start;
   font-size: 11px;
   color: var(--pc-text-muted);
-}
-
-.review__progress-track {
-  @include pixel-bar-track;
-  width: 100%;
-}
-
-.review__progress-fill {
-  height: 100%;
-  background: var(--pc-boss);
-  transition: width var(--pc-duration) var(--pc-ease);
 }
 
 // -----------------------------------------------------------------------
@@ -151,13 +139,9 @@
 
 .review__ratings {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   width: 100%;
-
-  @media (max-width: 560px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .rating-button {
@@ -197,32 +181,15 @@
   background: var(--pc-hp);
 }
 
-.rating-button--hard {
-  background: var(--pc-boss);
-}
-
 .rating-button--good {
   background: var(--pc-mana);
   color: #0c1a1f;
 }
 
-.rating-button--easy {
-  background: var(--pc-xp);
-  color: #0c1f10;
-}
-
-.rating-button__tag {
-  font-size: 8px;
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.35);
-  color: var(--pc-text);
-}
-
 // -----------------------------------------------------------------------
-// Estados vazio / conclusão
+// Estado vazio
 // -----------------------------------------------------------------------
-.review__empty,
-.review__summary {
+.review__empty {
   @include pixel-panel(var(--pc-panel));
   padding: 32px;
   display: flex;
@@ -232,22 +199,10 @@
   text-align: center;
   width: 100%;
   animation: pc-pop-in var(--pc-duration) var(--pc-ease);
-
-  h2 {
-    margin: 0;
-    font-size: 14px;
-    color: var(--pc-gold);
-  }
 }
 
 .review__empty-hint {
   margin: 0;
   color: var(--pc-text-muted);
   font-size: 13px;
-}
-
-.review__summary-gold {
-  font-size: 20px;
-  color: var(--pc-gold);
-  margin: 0;
 }

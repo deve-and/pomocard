@@ -121,24 +121,11 @@ export class DeckCatalogService {
     this.dueCountState.set(counts);
   }
 
-  async getDueCards(deckId: string): Promise<ReviewCard[]> {
-    const { data, error } = await this.supabase
-      .from('flashcards')
-      .select('id, deck_id, front_text, back_text, easiness_factor, repetitions, interval_days, last_gold_awarded_at')
-      .eq('deck_id', deckId)
-      .lte('next_review_at', new Date().toISOString())
-      .order('next_review_at')
-      .returns<FlashcardRow[]>();
-
-    if (error || !data) {
-      console.error('Falha ao carregar cartas para revisão', error);
-      return [];
-    }
-
-    return data.map(mapFlashcardRow);
-  }
-
-  /** Todas as cartas do deck (não só as devidas) — usado na tela de gerenciamento. */
+  /**
+   * Todas as cartas do baralho — usado tanto na tela de gerenciamento quanto na fila
+   * de revisão (regra "estudo disponível a qualquer momento": não filtra por
+   * next_review_at, então não existe bloqueio por horário nem "nada pra revisar hoje").
+   */
   async getDeckFlashcards(deckId: string): Promise<ReviewCard[]> {
     const { data, error } = await this.supabase
       .from('flashcards')

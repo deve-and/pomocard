@@ -10,19 +10,14 @@
 
   <p class="review__loading pc-pixel-text" *ngIf="isLoading()">Carregando fila...</p>
 
-  <div class="panel review__empty" *ngIf="!isLoading() && totalCount() === 0">
-    <p class="pc-pixel-text">Tudo em dia por aqui!</p>
-    <p class="review__empty-hint">Não há cartas para revisar neste deck agora.</p>
+  <div class="panel review__empty" *ngIf="isEmpty()">
+    <p class="pc-pixel-text">Este baralho ainda não tem cartas.</p>
+    <p class="review__empty-hint">Crie a primeira carta pra começar a estudar.</p>
     <a class="pixel-button" [routerLink]="['/decks', deckId()]">Gerenciar Baralho</a>
   </div>
 
-  <ng-container *ngIf="!isLoading() && totalCount() > 0 && !isSessionComplete()">
-    <div class="review__progress pc-pixel-text">
-      Carta {{ completedCount() + 1 }} / {{ totalCount() }}
-    </div>
-    <div class="review__progress-track">
-      <div class="review__progress-fill" [style.width.%]="progressPercent()"></div>
-    </div>
+  <ng-container *ngIf="!isLoading() && !isEmpty()">
+    <p class="review__session-gold pc-pixel-text">+{{ sessionGoldEarned() }} Gold nesta sessão</p>
 
     <div class="flip-card" [class.is-flipped]="isRevealed()" *ngIf="currentCard() as card">
       <div class="flip-card__inner">
@@ -44,25 +39,12 @@
     </div>
 
     <div class="review__ratings" *ngIf="isRevealed()">
-      <button class="rating-button rating-button--again" type="button" [disabled]="isSubmitting()" (click)="rate(1)">
-        Errou
+      <button class="rating-button rating-button--again" type="button" [disabled]="isSubmitting()" (click)="rate(false)">
+        Errei
       </button>
-      <button class="rating-button rating-button--hard" type="button" [disabled]="isSubmitting()" (click)="rate(3)">
-        <span>Difícil</span>
-        <span class="rating-button__tag">Boss Battle</span>
-      </button>
-      <button class="rating-button rating-button--good" type="button" [disabled]="isSubmitting()" (click)="rate(4)">
-        Médio
-      </button>
-      <button class="rating-button rating-button--easy" type="button" [disabled]="isSubmitting()" (click)="rate(5)">
-        Fácil
+      <button class="rating-button rating-button--good" type="button" [disabled]="isSubmitting()" (click)="rate(true)">
+        Acertei
       </button>
     </div>
   </ng-container>
-
-  <div class="panel review__summary" *ngIf="isSessionComplete()">
-    <h2 class="pc-pixel-text">Fila Concluída!</h2>
-    <p class="review__summary-gold pc-pixel-text">+{{ sessionGoldEarned() }} Gold</p>
-    <button class="pixel-button" type="button" (click)="backToDashboard()">Voltar ao Dashboard</button>
-  </div>
 </div>

@@ -56,16 +56,20 @@ export class AudioService {
     oscillator.stop(startTime + duration);
   }
 
-  /** Arpejo ascendente estilo "missão concluída" — toca ao fim de um foco. */
+  /** 3 bipes rápidos em escala ascendente — estilo "Level Up" / Missão Concluída, triunfante e curto. */
   playFocusComplete(): void {
-    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-    notes.forEach((freq, i) => this.playTone(freq, i * 0.09, 0.16, 'square', 0.14));
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    notes.forEach((freq, i) => this.playTone(freq, i * 0.08, 0.14, 'square', 0.14));
   }
 
-  /** Sino curto e suave — toca ao fim de um descanso, chamando de volta ao foco. */
+  /**
+   * 2 bipes rítmicos na MESMA nota — estilo "início de turno" / alarme de batalha,
+   * um chamado de volta ao foco, não uma melodia (por isso não varia a nota).
+   */
   playBreakComplete(): void {
-    this.playTone(783.99, 0, 0.14, 'triangle', 0.12); // G5
-    this.playTone(523.25, 0.13, 0.22, 'triangle', 0.12); // C5
+    const CALL_NOTE = 659.25; // E5
+    this.playTone(CALL_NOTE, 0, 0.18, 'square', 0.13);
+    this.playTone(CALL_NOTE, 0.24, 0.18, 'square', 0.13);
   }
 
   /**
