@@ -1,0 +1,137 @@
+@use '../shared/styles/pixel-theme' as *;
+
+// z-index acima de tudo (modal-overlay usa 100) — o Modo Zen é uma
+// sobreposição de app inteiro, não amarrada a nenhuma rota específica.
+.focus-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  background: radial-gradient(ellipse at center, var(--pc-bg-alt) 0%, var(--pc-bg) 70%);
+  animation: pc-pop-in 320ms var(--pc-ease);
+}
+
+@keyframes focus-mode-scroll {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -160px;
+  }
+}
+
+.focus-mode__scene {
+  position: relative;
+  width: min(720px, 100%);
+  height: 180px;
+  overflow: hidden;
+  border-top: var(--pc-px) solid var(--pc-panel-border-dark);
+  border-bottom: var(--pc-px) solid var(--pc-panel-border-dark);
+}
+
+// Duas camadas de "silhuetas" (árvores/pilares) em profundidades e
+// velocidades diferentes — a ilusão de caminhada vem do cenário rolando,
+// não do herói se deslocando (ele anda "no lugar", estilo esteira).
+.focus-mode__parallax {
+  position: absolute;
+  left: 0;
+  right: -160px;
+  height: 90px;
+  background-repeat: repeat-x;
+  background-size: 160px 100%;
+  image-rendering: pixelated;
+}
+
+.focus-mode__parallax--far {
+  top: 20px;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 60px,
+    var(--pc-panel-border-light) 60px 68px,
+    transparent 68px 160px
+  );
+  animation: focus-mode-scroll 9s linear infinite;
+}
+
+.focus-mode__parallax--near {
+  top: 55px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 20px,
+    var(--pc-mana) 20px 30px,
+    transparent 30px 160px
+  );
+  opacity: 0.3;
+  animation: focus-mode-scroll 4.5s linear infinite;
+}
+
+.focus-mode__hero {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  width: 128px;
+  height: 128px;
+  transform: translateX(-50%);
+  image-rendering: pixelated;
+}
+
+.focus-mode__ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: var(--pc-bg-alt);
+  border-top: 2px solid var(--pc-panel-border-light);
+}
+
+.focus-mode__hud {
+  text-align: center;
+}
+
+.focus-mode__phase {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--pc-mana);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.focus-mode__time {
+  margin: 0;
+  font-size: 56px;
+  color: var(--pc-text);
+}
+
+.focus-mode__hint {
+  margin: 16px 0 0;
+  font-size: 10px;
+  color: var(--pc-text-muted);
+}
+
+// Deliberadamente discreto — o objetivo do Modo Zen é minimizar distração,
+// então a única saída disponível não deve competir visualmente com o resto.
+.focus-mode__pause {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-family: var(--pc-font-pixel);
+  font-size: 10px;
+  padding: 8px 12px;
+  color: var(--pc-text-muted);
+  background: transparent;
+  border: 2px solid var(--pc-panel-border-light);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--pc-duration) var(--pc-ease);
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+}

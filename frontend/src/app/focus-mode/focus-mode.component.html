@@ -1,0 +1,16 @@
+<div class="focus-mode">
+  <div class="focus-mode__scene">
+    <div class="focus-mode__parallax focus-mode__parallax--far"></div>
+    <div class="focus-mode__parallax focus-mode__parallax--near"></div>
+    <canvas #heroCanvas class="focus-mode__hero" width="32" height="32"></canvas>
+    <div class="focus-mode__ground"></div>
+  </div>
+
+  <div class="focus-mode__hud pc-pixel-text">
+    <p class="focus-mode__phase">Foco</p>
+    <p class="focus-mode__time">{{ displayTime }}</p>
+    <p class="focus-mode__hint">Modo Zen — sem distrações até o fim do ciclo</p>
+  </div>
+
+  <button class="focus-mode__pause" type="button" (click)="pause()">⏸ Pausar</button>
+</div>

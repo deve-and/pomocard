@@ -113,6 +113,16 @@ export class PomodoroTimerService {
   readonly isBreak = computed(() => this.phase() !== 'focus');
   readonly phaseDurationSeconds = computed(() => this.activePhaseDurationMinutes() * 60);
 
+  /**
+   * Ato I do loop de 3 atos ("A Jornada de Exploração"): true só durante uma
+   * fase de FOCO ativamente contando — nunca durante descansos (o descanso é
+   * deliberadamente mais leve/social, sem a imersão de tela cheia) nem
+   * enquanto pausado. Consumido por FocusModeComponent, renderizado na raiz
+   * do app (ver app.component.ts) pra cobrir a tela inteira independente da
+   * rota atual.
+   */
+  readonly isZenModeActive = computed(() => this.phase() === 'focus' && this.isRunning());
+
   constructor() {
     this.loadSettingsFromStorage();
     this.resumeFromStorageIfAny();
