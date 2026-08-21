@@ -27,9 +27,10 @@
   --pc-px: 4px;
 
   // Tamanho do corte de canto em escada dos painéis/modais/cartas (ver
-  // pixel-corners abaixo) — 4x a unidade de pixel pra ser bem perceptível em
-  // superfícies grandes, não só uma lasca de 1-2px que passa despercebida.
-  --pc-corner: calc(var(--pc-px) * 4);
+  // pixel-corners abaixo) — 6x a unidade de pixel: grande o bastante pra os 9
+  // degraus da curva (ver pixel-corners) terem espaço real de aparecer, não
+  // uma lasca fina onde a resolução extra passaria despercebida.
+  --pc-corner: calc(var(--pc-px) * 6);
 
   // Curva de movimento "arcade" — rápida no início, sem quicar suavemente.
   --pc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -42,73 +43,109 @@
 
 // Canto "arredondado" em degrau de pixel — o jeito pixel art de suavizar uma
 // quina sem recorrer a uma curva suave (border-radius não existe aqui de
-// propósito). 5 degraus amostrados de um quarto de círculo de verdade (a
-// cada 18°, via seno/cosseno) em vez de poucos blocos grandes — quanto mais
-// "resolução" (mais pontos por canto), mais a escada se aproxima de uma
-// curva contínua, o mesmo motivo por que um sprite 64×64 arredonda melhor
-// que um 8×8. $f1..$f4 são as frações trigonométricas (sin 18°, sin 36°,
-// sin 54°, sin 72°) do tamanho do canto.
+// propósito). 9 degraus amostrados de um quarto de círculo de verdade (a
+// cada 10°, via seno/cosseno) — o dobro de "resolução" da versão anterior
+// (5 degraus a cada 18°), pra escada se aproximar ainda mais de uma curva
+// contínua, mesma lógica de um sprite com mais pixels renderizando um
+// círculo mais fiel. $g1..$g8 são as frações trigonométricas (sin 10° a
+// sin 80°) do tamanho do canto.
 //
 // $margin estende a região do recorte pra além da caixa nos 4 lados, pra
 // sombras/glows que normalmente vazam pra fora (box-shadow com offset ou
 // blur) não serem cortados junto com os cantos — ver pixel-panel (sombra
 // rígida, margem pequena) e pixel-glow (halo desfocado, margem maior).
 @mixin pixel-corners($corner: calc(var(--pc-px) * 2), $margin: 0px) {
-  $f1: calc(#{$corner} * 0.31);
-  $f2: calc(#{$corner} * 0.59);
-  $f3: calc(#{$corner} * 0.81);
-  $f4: calc(#{$corner} * 0.95);
+  $g1: calc(#{$corner} * 0.174);
+  $g2: calc(#{$corner} * 0.342);
+  $g3: calc(#{$corner} * 0.5);
+  $g4: calc(#{$corner} * 0.643);
+  $g5: calc(#{$corner} * 0.766);
+  $g6: calc(#{$corner} * 0.866);
+  $g7: calc(#{$corner} * 0.940);
+  $g8: calc(#{$corner} * 0.985);
   $near0: calc(0px - #{$margin});
   $near100: calc(100% + #{$margin});
 
   clip-path: polygon(
     // canto superior-esquerdo
     #{$near0} #{$corner},
-    #{$f1} #{$corner},
-    #{$f1} #{$f4},
-    #{$f2} #{$f4},
-    #{$f2} #{$f3},
-    #{$f3} #{$f3},
-    #{$f3} #{$f2},
-    #{$f4} #{$f2},
-    #{$f4} #{$f1},
-    #{$corner} #{$f1},
+    #{$g1} #{$corner},
+    #{$g1} #{$g8},
+    #{$g2} #{$g8},
+    #{$g2} #{$g7},
+    #{$g3} #{$g7},
+    #{$g3} #{$g6},
+    #{$g4} #{$g6},
+    #{$g4} #{$g5},
+    #{$g5} #{$g5},
+    #{$g5} #{$g4},
+    #{$g6} #{$g4},
+    #{$g6} #{$g3},
+    #{$g7} #{$g3},
+    #{$g7} #{$g2},
+    #{$g8} #{$g2},
+    #{$g8} #{$g1},
+    #{$corner} #{$g1},
     #{$corner} #{$near0},
     // canto superior-direito
     calc(100% - #{$corner}) #{$near0},
-    calc(100% - #{$corner}) #{$f1},
-    calc(100% - #{$f4}) #{$f1},
-    calc(100% - #{$f4}) #{$f2},
-    calc(100% - #{$f3}) #{$f2},
-    calc(100% - #{$f3}) #{$f3},
-    calc(100% - #{$f2}) #{$f3},
-    calc(100% - #{$f2}) #{$f4},
-    calc(100% - #{$f1}) #{$f4},
-    calc(100% - #{$f1}) #{$corner},
+    calc(100% - #{$corner}) #{$g1},
+    calc(100% - #{$g8}) #{$g1},
+    calc(100% - #{$g8}) #{$g2},
+    calc(100% - #{$g7}) #{$g2},
+    calc(100% - #{$g7}) #{$g3},
+    calc(100% - #{$g6}) #{$g3},
+    calc(100% - #{$g6}) #{$g4},
+    calc(100% - #{$g5}) #{$g4},
+    calc(100% - #{$g5}) #{$g5},
+    calc(100% - #{$g4}) #{$g5},
+    calc(100% - #{$g4}) #{$g6},
+    calc(100% - #{$g3}) #{$g6},
+    calc(100% - #{$g3}) #{$g7},
+    calc(100% - #{$g2}) #{$g7},
+    calc(100% - #{$g2}) #{$g8},
+    calc(100% - #{$g1}) #{$g8},
+    calc(100% - #{$g1}) #{$corner},
     #{$near100} #{$corner},
     // canto inferior-direito
     #{$near100} calc(100% - #{$corner}),
-    calc(100% - #{$f1}) calc(100% - #{$corner}),
-    calc(100% - #{$f1}) calc(100% - #{$f4}),
-    calc(100% - #{$f2}) calc(100% - #{$f4}),
-    calc(100% - #{$f2}) calc(100% - #{$f3}),
-    calc(100% - #{$f3}) calc(100% - #{$f3}),
-    calc(100% - #{$f3}) calc(100% - #{$f2}),
-    calc(100% - #{$f4}) calc(100% - #{$f2}),
-    calc(100% - #{$f4}) calc(100% - #{$f1}),
-    calc(100% - #{$corner}) calc(100% - #{$f1}),
+    calc(100% - #{$g1}) calc(100% - #{$corner}),
+    calc(100% - #{$g1}) calc(100% - #{$g8}),
+    calc(100% - #{$g2}) calc(100% - #{$g8}),
+    calc(100% - #{$g2}) calc(100% - #{$g7}),
+    calc(100% - #{$g3}) calc(100% - #{$g7}),
+    calc(100% - #{$g3}) calc(100% - #{$g6}),
+    calc(100% - #{$g4}) calc(100% - #{$g6}),
+    calc(100% - #{$g4}) calc(100% - #{$g5}),
+    calc(100% - #{$g5}) calc(100% - #{$g5}),
+    calc(100% - #{$g5}) calc(100% - #{$g4}),
+    calc(100% - #{$g6}) calc(100% - #{$g4}),
+    calc(100% - #{$g6}) calc(100% - #{$g3}),
+    calc(100% - #{$g7}) calc(100% - #{$g3}),
+    calc(100% - #{$g7}) calc(100% - #{$g2}),
+    calc(100% - #{$g8}) calc(100% - #{$g2}),
+    calc(100% - #{$g8}) calc(100% - #{$g1}),
+    calc(100% - #{$corner}) calc(100% - #{$g1}),
     calc(100% - #{$corner}) #{$near100},
     // canto inferior-esquerdo
     #{$corner} #{$near100},
-    #{$corner} calc(100% - #{$f1}),
-    #{$f4} calc(100% - #{$f1}),
-    #{$f4} calc(100% - #{$f2}),
-    #{$f3} calc(100% - #{$f2}),
-    #{$f3} calc(100% - #{$f3}),
-    #{$f2} calc(100% - #{$f3}),
-    #{$f2} calc(100% - #{$f4}),
-    #{$f1} calc(100% - #{$f4}),
-    #{$f1} calc(100% - #{$corner}),
+    #{$corner} calc(100% - #{$g1}),
+    #{$g8} calc(100% - #{$g1}),
+    #{$g8} calc(100% - #{$g2}),
+    #{$g7} calc(100% - #{$g2}),
+    #{$g7} calc(100% - #{$g3}),
+    #{$g6} calc(100% - #{$g3}),
+    #{$g6} calc(100% - #{$g4}),
+    #{$g5} calc(100% - #{$g4}),
+    #{$g5} calc(100% - #{$g5}),
+    #{$g4} calc(100% - #{$g5}),
+    #{$g4} calc(100% - #{$g6}),
+    #{$g3} calc(100% - #{$g6}),
+    #{$g3} calc(100% - #{$g7}),
+    #{$g2} calc(100% - #{$g7}),
+    #{$g2} calc(100% - #{$g8}),
+    #{$g1} calc(100% - #{$g8}),
+    #{$g1} calc(100% - #{$corner}),
     #{$near0} calc(100% - #{$corner})
   );
 }
@@ -173,6 +210,11 @@
   // Margem só do tamanho do deslocamento vertical da sombra rígida acima —
   // sem isso o canto cortaria a ponta da sombra que sobra abaixo da caixa.
   @include pixel-corners($corner: var(--pc-corner), $margin: var(--pc-px));
+  // Franja de anti-aliasing "à mão": um blur de 1px numa cor MISTURADA da
+  // própria paleta (borda clara + fundo do painel) hugging o contorno já
+  // recortado — suaviza visualmente o degrau sem trocar de técnica (ainda é
+  // um clip, só ganha uma borda macia em vez de um corte 100% binário).
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--pc-panel-border-light) 55%, #{$bg}));
 }
 
 // Botão estilo NES: sobe/desce ao pressionar. A transição só existe no eixo
@@ -191,6 +233,10 @@
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.35);
   // Sombras só inset (nunca vazam pra fora da caixa) — sem margem necessária.
   @include pixel-corners;
+  // Mesma franja de AA de pixel-panel, só que puxando pra branco (clareando a
+  // própria cor do botão) em vez de misturar com um fundo — o botão não tem
+  // um "fundo" atrás fixo, então usa a própria $bg como base da mistura.
+  filter: drop-shadow(0 0 1px color-mix(in srgb, #{$bg} 65%, white));
 
   &:active {
     box-shadow:
