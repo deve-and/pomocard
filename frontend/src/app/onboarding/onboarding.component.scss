@@ -1,0 +1,76 @@
+@use '../shared/styles/pixel-theme' as *;
+
+.modal-overlay {
+  @include modal-overlay;
+}
+
+.modal {
+  @include modal-surface(440px);
+  align-items: center;
+  text-align: center;
+}
+
+.onboarding__slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-height: 160px;
+  justify-content: center;
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--pc-gold);
+  }
+}
+
+.onboarding__icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+// Corpo de texto em fonte legível, não pixelada (regra de acessibilidade já
+// estabelecida no app: fonte pixel só pra títulos/UI curta, nunca pra
+// parágrafos — ver styles.scss).
+.onboarding__subtitle {
+  margin: 0;
+  max-width: 320px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--pc-text-muted);
+}
+
+.onboarding__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.onboarding__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 2px solid var(--pc-panel-border-light);
+  background: transparent;
+  cursor: pointer;
+}
+
+.onboarding__dot--active {
+  background: var(--pc-gold);
+  border-color: var(--pc-gold);
+}
+
+.onboarding__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pixel-button {
+  @include pixel-button;
+}
+
+.pixel-button--ghost {
+  @include pixel-button(var(--pc-bg-alt), var(--pc-text));
+}

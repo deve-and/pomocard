@@ -1,0 +1,33 @@
+<div class="modal-overlay" role="presentation" (click)="skip()">
+  <div
+    class="modal pc-pixel-text"
+    data-quest-tag="Bem-vindo"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="onboarding__slide" *ngIf="slides[currentIndex()] as slide">
+      <span class="onboarding__icon" aria-hidden="true">{{ slide.icon }}</span>
+      <h2>{{ slide.title }}</h2>
+      <p class="onboarding__subtitle">{{ slide.subtitle }}</p>
+    </div>
+
+    <div class="onboarding__dots">
+      <button
+        class="onboarding__dot"
+        type="button"
+        *ngFor="let slide of slides; let i = index"
+        [class.onboarding__dot--active]="i === currentIndex()"
+        [attr.aria-label]="'Ir para a tela ' + (i + 1)"
+        (click)="goTo(i)"
+      ></button>
+    </div>
+
+    <div class="onboarding__actions">
+      <button class="pixel-button pixel-button--ghost" type="button" (click)="skip()">Pular</button>
+      <button class="pixel-button" type="button" (click)="next()">
+        {{ isLastSlide() ? 'Começar a Jornada' : 'Próximo' }}
+      </button>
+    </div>
+  </div>
+</div>

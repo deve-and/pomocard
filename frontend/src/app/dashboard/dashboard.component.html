@@ -138,4 +138,6 @@
     *ngIf="pomodoroTimer.isSettingsOpen()"
     (closed)="pomodoroTimer.isSettingsOpen.set(false)"
   ></pc-pomodoro-settings-modal>
+
+  <pc-onboarding *ngIf="isOnboardingOpen()" (closed)="finishOnboarding()"></pc-onboarding>
 </div>

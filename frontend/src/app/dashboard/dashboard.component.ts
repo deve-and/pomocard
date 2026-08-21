@@ -9,6 +9,7 @@ import { PomodoroTimerService } from '../core/pomodoro-timer.service';
 import { RewardService } from '../core/reward.service';
 import { DeckModalComponent } from '../deck-modal/deck-modal.component';
 import { FlashcardDraft, FlashcardModalComponent } from '../flashcard-modal/flashcard-modal.component';
+import { OnboardingComponent } from '../onboarding/onboarding.component';
 import { PomodoroSettingsModalComponent } from '../pomodoro-settings-modal/pomodoro-settings-modal.component';
 import { PomodoroTimerComponent } from '../pomodoro-timer/pomodoro-timer.component';
 
@@ -16,6 +17,11 @@ interface GuildRankEntry {
   username: string;
   activeDaysLast7d: number;
 }
+
+// Só mostra o carrossel de boas-vindas uma vez por navegador — preferência
+// de aparelho (mesmo raciocínio de pomocard.pomodoro.settings), não precisa
+// de coluna nova no Supabase nem sincroniza entre dispositivos.
+const ONBOARDING_STORAGE_KEY = 'pomocard.onboarding.completed';
 
 @Component({
   selector: 'pc-dashboard',
@@ -27,6 +33,7 @@ interface GuildRankEntry {
     FlashcardModalComponent,
     DeckModalComponent,
     PomodoroSettingsModalComponent,
+    OnboardingComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -62,6 +69,8 @@ export class DashboardComponent {
 
   // Criação de deck
   readonly isDeckModalOpen = signal(false);
+
+  readonly isOnboardingOpen = signal(localStorage.getItem(ONBOARDING_STORAGE_KEY) !== 'true');
 
   // Pips do indicador de Escudo de Ofensiva no HUD — precisa acompanhar
   // MAX_STREAK_SHIELDS do backend (streakService.js), não há como importar
@@ -189,5 +198,11 @@ export class DashboardComponent {
 
   signOut(): void {
     this.auth.signOut();
+  }
+
+  /** Chamado tanto ao terminar o carrossel quanto ao clicar "Pular" — os dois marcam como visto. */
+  finishOnboarding(): void {
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    this.isOnboardingOpen.set(false);
   }
 }
