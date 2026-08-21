@@ -40,37 +40,57 @@
   --pc-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-// Canto "arredondado" em degrau de 2 passos — o jeito pixel art de suavizar
-// uma quina sem recorrer a uma curva suave (border-radius não existe aqui de
-// propósito). $margin estende a região do recorte pra além da caixa nos 4
-// lados, pra sombras/glows que normalmente vazam pra fora (box-shadow com
-// offset ou blur) não serem cortados junto com os cantos — ver pixel-panel
-// (sombra rígida, margem pequena) e pixel-glow (halo desfocado, margem maior).
+// Canto "arredondado" em degrau de pixel — o jeito pixel art de suavizar uma
+// quina sem recorrer a uma curva suave (border-radius não existe aqui de
+// propósito). Em vez de 2 degraus IGUAIS (zigue-zague de blocos idênticos,
+// ainda meio artificial), usa 3 degraus em progressão grande-pequeno-grande
+// (proporção 2:1:2) — mesma lógica de um tutorial de pixel art pra curvas: o
+// espaçamento tem que crescer/encolher de forma lógica, não ser uniforme,
+// pra imitar como um arco de verdade é raso perto das bordas retas e vira
+// mais rápido perto da diagonal do meio.
+//
+// $margin estende a região do recorte pra além da caixa nos 4 lados, pra
+// sombras/glows que normalmente vazam pra fora (box-shadow com offset ou
+// blur) não serem cortados junto com os cantos — ver pixel-panel (sombra
+// rígida, margem pequena) e pixel-glow (halo desfocado, margem maior).
 @mixin pixel-corners($corner: calc(var(--pc-px) * 2), $margin: 0px) {
-  $half: calc(#{$corner} / 2);
+  $a: calc(#{$corner} * 2 / 5);
+  $b: calc(#{$corner} * 3 / 5);
   $near0: calc(0px - #{$margin});
   $near100: calc(100% + #{$margin});
 
   clip-path: polygon(
+    // canto superior-esquerdo
     #{$near0} #{$corner},
-    #{$half} #{$corner},
-    #{$half} #{$half},
-    #{$corner} #{$half},
+    #{$a} #{$corner},
+    #{$a} #{$b},
+    #{$b} #{$b},
+    #{$b} #{$a},
+    #{$corner} #{$a},
     #{$corner} #{$near0},
+    // canto superior-direito
     calc(100% - #{$corner}) #{$near0},
-    calc(100% - #{$corner}) #{$half},
-    calc(100% - #{$half}) #{$half},
-    calc(100% - #{$half}) #{$corner},
+    calc(100% - #{$corner}) #{$a},
+    calc(100% - #{$b}) #{$a},
+    calc(100% - #{$b}) #{$b},
+    calc(100% - #{$a}) #{$b},
+    calc(100% - #{$a}) #{$corner},
     #{$near100} #{$corner},
+    // canto inferior-direito
     #{$near100} calc(100% - #{$corner}),
-    calc(100% - #{$half}) calc(100% - #{$corner}),
-    calc(100% - #{$half}) calc(100% - #{$half}),
-    calc(100% - #{$corner}) calc(100% - #{$half}),
+    calc(100% - #{$a}) calc(100% - #{$corner}),
+    calc(100% - #{$a}) calc(100% - #{$b}),
+    calc(100% - #{$b}) calc(100% - #{$b}),
+    calc(100% - #{$b}) calc(100% - #{$a}),
+    calc(100% - #{$corner}) calc(100% - #{$a}),
     calc(100% - #{$corner}) #{$near100},
+    // canto inferior-esquerdo
     #{$corner} #{$near100},
-    #{$corner} calc(100% - #{$half}),
-    #{$half} calc(100% - #{$half}),
-    #{$half} calc(100% - #{$corner}),
+    #{$corner} calc(100% - #{$a}),
+    #{$b} calc(100% - #{$a}),
+    #{$b} calc(100% - #{$b}),
+    #{$a} calc(100% - #{$b}),
+    #{$a} calc(100% - #{$corner}),
     #{$near0} calc(100% - #{$corner})
   );
 }
