@@ -21,6 +21,8 @@ export interface ReviewResponse {
   manaMultiplier: number;
   /** true quando o Gold foi zerado pelo cooldown de 24h da carta, não por ter errado. */
   goldBlockedByCooldown: boolean;
+  /** true quando o Gold desta revisão saiu em dobro por "loot crítico" (ver goldService.js). */
+  isCritical: boolean;
 }
 
 /**

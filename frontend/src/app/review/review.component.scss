@@ -209,6 +209,16 @@
   animation: pc-pop-in var(--pc-duration) var(--pc-ease);
 }
 
+// Loot crítico (ver goldService.js): mesmo chip, só maior e mais vibrante — o
+// "brilho" reaproveita pixel-glow em vez de inventar um novo efeito visual.
+.reward-chip--critical {
+  @include pixel-glow(var(--pc-boss), 0.55);
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--pc-boss);
+  border-color: var(--pc-boss);
+}
+
 // -----------------------------------------------------------------------
 // Ações
 // -----------------------------------------------------------------------

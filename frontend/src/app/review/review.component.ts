@@ -108,6 +108,8 @@ export class ReviewComponent implements OnDestroy {
   readonly isSubmitting = signal(false);
   readonly sessionGoldEarned = signal(0);
   readonly lastCardGold = signal<number | null>(null);
+  /** true quando o Gold acabado de mostrar em lastCardGold veio de um loot crítico (ver rate()). */
+  readonly lastCardCritical = signal(false);
   /** Ato II: breve transição de "monstros emergindo" ao entrar numa fila com cartas — ver triggerAmbush(). */
   readonly isAmbushActive = signal(false);
 
@@ -157,7 +159,7 @@ export class ReviewComponent implements OnDestroy {
     const quality = isCorrect ? ACERTEI_QUALITY : ERREI_QUALITY;
 
     try {
-      const { goldEarned, schedule } = await firstValueFrom(
+      const { goldEarned, schedule, isCritical } = await firstValueFrom(
         this.rewardService.submitReview(
           quality,
           card.srsState,
@@ -172,6 +174,9 @@ export class ReviewComponent implements OnDestroy {
       const wasAlreadyTaintedThisSession = this.failedThisSessionIds.has(card.id);
       if (!isCorrect) this.failedThisSessionIds.add(card.id);
       const effectiveGoldEarned = isCorrect && !wasAlreadyTaintedThisSession ? goldEarned : 0;
+      // Sem crítico "vazio": só conta se o Gold que ele dobrou foi de fato pago —
+      // uma carta contaminada nesta sessão não deve comemorar um crítico que virou 0.
+      const effectiveIsCritical = effectiveGoldEarned > 0 && isCritical;
 
       // A revisão paga em Gold (peso de dificuldade); XP fica reservado à
       // criação da carta, conforme o fluxo principal (regra de negócio 1).
@@ -179,9 +184,15 @@ export class ReviewComponent implements OnDestroy {
       await this.player.addFocusMinutes(REVIEW_MINUTES_PER_CARD);
       this.sessionGoldEarned.update((total) => total + effectiveGoldEarned);
 
+      if (effectiveIsCritical) this.audioService.playCritical();
+
       this.lastCardGold.set(effectiveGoldEarned);
+      this.lastCardCritical.set(effectiveIsCritical);
       clearTimeout(this.rewardChipTimeout);
-      this.rewardChipTimeout = setTimeout(() => this.lastCardGold.set(null), REWARD_CHIP_DURATION_MS);
+      this.rewardChipTimeout = setTimeout(() => {
+        this.lastCardGold.set(null);
+        this.lastCardCritical.set(false);
+      }, REWARD_CHIP_DURATION_MS);
 
       // A carta local precisa carregar o novo srsState retornado pelo backend, senão o
       // próximo cálculo de agendamento desta mesma carta partiria do estado desatualizado.

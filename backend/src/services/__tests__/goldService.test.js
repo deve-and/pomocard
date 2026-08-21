@@ -87,3 +87,67 @@ test('rejeita focusMinutes inválido', () => {
 test('rejeita cardQuality fora do intervalo 0-5', () => {
   assert.throws(() => calculateGoldReward({ focusMinutes: 25, cardQuality: 6, minutesFocusedTodayBeforeSession: 0 }));
 });
+
+test('sem allowCriticalLoot (default), nunca rola crítico mesmo com randomFn favorável', () => {
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 4,
+    minutesFocusedTodayBeforeSession: 0,
+    randomFn: () => 0, // sempre "ganharia" o roll se estivesse habilitado
+  });
+  assert.equal(result.isCritical, false);
+});
+
+test('com allowCriticalLoot e roll dentro da chance, dobra o Gold e marca isCritical', () => {
+  const base = calculateGoldReward({ focusMinutes: 25, cardQuality: 4, minutesFocusedTodayBeforeSession: 0 });
+  const critical = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 4,
+    minutesFocusedTodayBeforeSession: 0,
+    allowCriticalLoot: true,
+    randomFn: () => 0, // 0 < CRITICAL_LOOT_CHANCE, sempre acerta o roll
+  });
+  assert.equal(critical.isCritical, true);
+  assert.equal(critical.goldEarned, base.goldEarned * 2);
+});
+
+test('com allowCriticalLoot e roll fora da chance, não dobra o Gold', () => {
+  const base = calculateGoldReward({ focusMinutes: 25, cardQuality: 4, minutesFocusedTodayBeforeSession: 0 });
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 4,
+    minutesFocusedTodayBeforeSession: 0,
+    allowCriticalLoot: true,
+    randomFn: () => 0.99, // acima de CRITICAL_LOOT_CHANCE, nunca acerta o roll
+  });
+  assert.equal(result.isCritical, false);
+  assert.equal(result.goldEarned, base.goldEarned);
+});
+
+test('crítico nunca rola numa falha (quality < 3), mesmo com allowCriticalLoot e roll favorável', () => {
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 1,
+    minutesFocusedTodayBeforeSession: 0,
+    allowCriticalLoot: true,
+    randomFn: () => 0,
+  });
+  assert.equal(result.isCritical, false);
+  assert.equal(result.goldEarned, 0);
+});
+
+test('crítico nunca rola quando bloqueado por cooldown, mesmo com allowCriticalLoot e roll favorável', () => {
+  const now = new Date('2026-01-02T00:00:00Z');
+  const lastGoldAwardedAt = new Date('2026-01-01T12:00:00Z').toISOString(); // 12h atrás, dentro do cooldown
+  const result = calculateGoldReward({
+    focusMinutes: 25,
+    cardQuality: 4,
+    minutesFocusedTodayBeforeSession: 0,
+    lastGoldAwardedAt,
+    now,
+    allowCriticalLoot: true,
+    randomFn: () => 0,
+  });
+  assert.equal(result.isCritical, false);
+  assert.equal(result.goldEarned, 0);
+});

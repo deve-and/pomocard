@@ -21,6 +21,17 @@ const BASE_GOLD_PER_MINUTE = 2;
 const GOLD_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * "Loot crítico": chance de um acerto pagar Gold em dobro, puramente por sorte —
+ * o Core Drive 7 do Octalysis (Imprevisibilidade & Curiosidade). Só faz sentido
+ * num evento que se repete com frequência (revisão de carta, "batalha"), por
+ * isso é opt-in via `allowCriticalLoot` — a recompensa de Pomodoro concluído
+ * (evento raro, grande) nunca rola crítico, pra não se tornar previsível OU
+ * volátil demais num valor que já é alto por si só.
+ */
+const CRITICAL_LOOT_CHANCE = 0.15;
+const CRITICAL_LOOT_MULTIPLIER = 2;
+
+/**
  * Peso de dificuldade por nota de recall (0 a 5).
  * Notas < 3 são "falha" (a carta não foi vencida) e rendem apenas uma
  * recompensa de consolação. Notas 3-5 são "vitórias", e quanto mais difícil
@@ -101,7 +112,9 @@ function getManaMultiplier(minutesBeforeSession, focusMinutes) {
  * @param {number} params.minutesFocusedTodayBeforeSession Minutos de foco já acumulados hoje pelo usuário, antes desta sessão (>= 0).
  * @param {string|null} [params.lastGoldAwardedAt] ISO 8601 do último Gold ganho por ESTA carta (null se nunca ganhou). Ignorado numa falha.
  * @param {Date} [params.now]                      Momento de referência pro cálculo do cooldown (default: agora).
- * @returns {{ goldEarned: number, manaMultiplier: number, difficultyWeight: number, goldBlockedByCooldown: boolean }}
+ * @param {boolean} [params.allowCriticalLoot]     Se true, um acerto que pagaria Gold tem CRITICAL_LOOT_CHANCE de chance de pagar em dobro. Default false (ver constante acima).
+ * @param {() => number} [params.randomFn]         Fonte de aleatoriedade pro roll do crítico (default Math.random) — injetável pra testes determinísticos.
+ * @returns {{ goldEarned: number, manaMultiplier: number, difficultyWeight: number, goldBlockedByCooldown: boolean, isCritical: boolean }}
  */
 function calculateGoldReward({
   focusMinutes,
@@ -109,6 +122,8 @@ function calculateGoldReward({
   minutesFocusedTodayBeforeSession,
   lastGoldAwardedAt = null,
   now = new Date(),
+  allowCriticalLoot = false,
+  randomFn = Math.random,
 }) {
   if (!Number.isFinite(focusMinutes) || focusMinutes <= 0) {
     throw new RangeError(`focusMinutes deve ser um número positivo, recebido: ${focusMinutes}`);
@@ -127,20 +142,30 @@ function calculateGoldReward({
   const goldBlockedByCooldown =
     !isFailure && lastGoldAwardedAt !== null && now.getTime() - new Date(lastGoldAwardedAt).getTime() < GOLD_COOLDOWN_MS;
 
-  const rawGold =
+  const baseGold =
     isFailure || goldBlockedByCooldown ? 0 : focusMinutes * BASE_GOLD_PER_MINUTE * difficultyWeight * manaMultiplier;
+
+  // O roll só acontece quando Gold seria mesmo pago — sem crítico "vazio" numa
+  // falha ou num acerto bloqueado por cooldown, e sem custo de aleatoriedade
+  // (chamar randomFn) fora desse caminho, mantendo o cálculo determinístico
+  // pros dois outros casos.
+  const isCritical = allowCriticalLoot && baseGold > 0 && randomFn() < CRITICAL_LOOT_CHANCE;
+  const rawGold = isCritical ? baseGold * CRITICAL_LOOT_MULTIPLIER : baseGold;
 
   return {
     goldEarned: Math.round(rawGold),
     manaMultiplier: Number(manaMultiplier.toFixed(2)),
     difficultyWeight,
     goldBlockedByCooldown,
+    isCritical,
   };
 }
 
 module.exports = {
   BASE_GOLD_PER_MINUTE,
   GOLD_COOLDOWN_MS,
+  CRITICAL_LOOT_CHANCE,
+  CRITICAL_LOOT_MULTIPLIER,
   DIFFICULTY_WEIGHTS,
   MANA_TIERS,
   getDifficultyWeight,

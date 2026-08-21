@@ -73,6 +73,16 @@ export class AudioService {
   }
 
   /**
+   * Arpejo curto e brilhante (tônica-terça-quinta-oitava) — dispara só no "loot
+   * crítico" da revisão (ver goldService.js), distinto do "Level Up" do fim de
+   * foco e do rugido da emboscada, pra marcar como um evento raro e especial.
+   */
+  playCritical(): void {
+    const notes = [783.99, 987.77, 1174.66, 1567.98]; // G5, B5, D6, G6
+    notes.forEach((freq, i) => this.playTone(freq, i * 0.055, 0.16, 'triangle', 0.15));
+  }
+
+  /**
    * Rugido curto em glissando (grave → agudo, dente-de-serra) — dispara ao entrar
    * numa fila de revisão com cartas pendentes, o equivalente sonoro de "monstros
    * emergiram da escuridão do esquecimento". Só toca uma vez, sem repetição.

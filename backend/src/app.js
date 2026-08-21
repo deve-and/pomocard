@@ -73,15 +73,18 @@ function createApp() {
 
     // lastGoldAwardedAt vem do próprio cartão (public.flashcards.last_gold_awarded_at) —
     // é o que permite o cooldown de 24h por carta em vez de por usuário ou sessão.
-    const { goldEarned, manaMultiplier, goldBlockedByCooldown } = calculateGoldReward({
+    // allowCriticalLoot só é ligado aqui (revisão = "batalha" recorrente) — a
+    // recompensa de Pomodoro concluído (/api/rewards/pomodoro-session) nunca rola crítico.
+    const { goldEarned, manaMultiplier, goldBlockedByCooldown, isCritical } = calculateGoldReward({
       focusMinutes,
       cardQuality: quality,
       minutesFocusedTodayBeforeSession,
       lastGoldAwardedAt: lastGoldAwardedAt ?? null,
       now,
+      allowCriticalLoot: true,
     });
 
-    return res.json({ schedule, goldEarned, manaMultiplier, goldBlockedByCooldown });
+    return res.json({ schedule, goldEarned, manaMultiplier, goldBlockedByCooldown, isCritical });
   });
 
   // eslint-disable-next-line no-unused-vars

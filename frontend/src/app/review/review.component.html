@@ -51,7 +51,9 @@
       </div>
     </div>
 
-    <p class="reward-chip pc-pixel-text" *ngIf="lastCardGold() !== null">+{{ lastCardGold() }} Gold</p>
+    <p class="reward-chip pc-pixel-text" [class.reward-chip--critical]="lastCardCritical()" *ngIf="lastCardGold() !== null">
+      <ng-container *ngIf="lastCardCritical()">⚡ CRÍTICO! </ng-container>+{{ lastCardGold() }} Gold
+    </p>
 
     <div class="review__actions" *ngIf="!isRevealed() && !isAmbushActive()">
       <button class="pixel-button" type="button" (click)="reveal()">Mostrar Resposta</button>
