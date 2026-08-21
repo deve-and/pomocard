@@ -26,6 +26,11 @@
   // Unidade base de "pixel" para bordas/sombras em degrau
   --pc-px: 4px;
 
+  // Tamanho do corte de canto em escada dos painéis/modais/cartas (ver
+  // pixel-corners abaixo) — 4x a unidade de pixel pra ser bem perceptível em
+  // superfícies grandes, não só uma lasca de 1-2px que passa despercebida.
+  --pc-corner: calc(var(--pc-px) * 4);
+
   // Curva de movimento "arcade" — rápida no início, sem quicar suavemente.
   --pc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --pc-duration: 220ms;
@@ -33,6 +38,41 @@
   // Curva com leve overshoot — usada só na volta do "squash" dos botões (game
   // juice), nunca em transições de layout, pra não quicar a interface inteira.
   --pc-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// Canto "arredondado" em degrau de 2 passos — o jeito pixel art de suavizar
+// uma quina sem recorrer a uma curva suave (border-radius não existe aqui de
+// propósito). $margin estende a região do recorte pra além da caixa nos 4
+// lados, pra sombras/glows que normalmente vazam pra fora (box-shadow com
+// offset ou blur) não serem cortados junto com os cantos — ver pixel-panel
+// (sombra rígida, margem pequena) e pixel-glow (halo desfocado, margem maior).
+@mixin pixel-corners($corner: calc(var(--pc-px) * 2), $margin: 0px) {
+  $half: calc(#{$corner} / 2);
+  $near0: calc(0px - #{$margin});
+  $near100: calc(100% + #{$margin});
+
+  clip-path: polygon(
+    #{$near0} #{$corner},
+    #{$half} #{$corner},
+    #{$half} #{$half},
+    #{$corner} #{$half},
+    #{$corner} #{$near0},
+    calc(100% - #{$corner}) #{$near0},
+    calc(100% - #{$corner}) #{$half},
+    calc(100% - #{$half}) #{$half},
+    calc(100% - #{$half}) #{$corner},
+    #{$near100} #{$corner},
+    #{$near100} calc(100% - #{$corner}),
+    calc(100% - #{$half}) calc(100% - #{$corner}),
+    calc(100% - #{$half}) calc(100% - #{$half}),
+    calc(100% - #{$corner}) calc(100% - #{$half}),
+    calc(100% - #{$corner}) #{$near100},
+    #{$corner} #{$near100},
+    #{$corner} calc(100% - #{$half}),
+    #{$half} calc(100% - #{$half}),
+    #{$half} calc(100% - #{$corner}),
+    #{$near0} calc(100% - #{$corner})
+  );
 }
 
 // Glow de destaque atrás de um painel — profundidade sutil sem abandonar as
@@ -43,6 +83,11 @@
     0 var(--pc-px) 0 0 var(--pc-panel-border-dark),
     0 0 24px rgba(0, 0, 0, 0.5),
     0 0 32px -8px color-mix(in srgb, $color $strength * 100%, transparent);
+  // Margem generosa (cobre o halo de 24-32px de blur) — sem isso o clip-path
+  // dos cantos cortaria o glow inteiro fora da caixa, junto com a quina. Usa
+  // o mesmo --pc-corner de pixel-panel pra não ficar com um recorte menor
+  // quando os dois são combinados (glow é incluído por último, então vence).
+  @include pixel-corners($corner: var(--pc-corner), $margin: 32px);
 }
 
 @keyframes pc-fade-in-up {
@@ -78,8 +123,8 @@
   }
 }
 
-// Painel com moldura em degrau (bezel de 8-bit), sem border-radius —
-// pixel art não tem curvas suaves.
+// Painel com moldura em degrau (bezel de 8-bit) — cantos em escada de pixel
+// em vez de border-radius suave, mas nunca mais um retângulo 100% quadrado.
 @mixin pixel-panel($bg: var(--pc-panel)) {
   background: $bg;
   border: var(--pc-px) solid var(--pc-panel-border-dark);
@@ -87,6 +132,9 @@
     inset 0 0 0 var(--pc-px) var(--pc-panel-border-light),
     0 var(--pc-px) 0 0 var(--pc-panel-border-dark);
   image-rendering: pixelated;
+  // Margem só do tamanho do deslocamento vertical da sombra rígida acima —
+  // sem isso o canto cortaria a ponta da sombra que sobra abaixo da caixa.
+  @include pixel-corners($corner: var(--pc-corner), $margin: var(--pc-px));
 }
 
 // Botão estilo NES: sobe/desce ao pressionar. A transição só existe no eixo
@@ -103,6 +151,8 @@
   box-shadow:
     inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.35);
+  // Sombras só inset (nunca vazam pra fora da caixa) — sem margem necessária.
+  @include pixel-corners;
 
   &:active {
     box-shadow:
@@ -149,6 +199,9 @@
   border: var(--pc-px) solid var(--pc-panel-border-dark);
   box-shadow: inset 0 0 0 2px var(--pc-panel-border-light);
   overflow: hidden;
+  // Canto menor que o padrão (a barra é fina, um corte de 8px comeria a
+  // altura inteira) — sem margem, a sombra e o preenchimento são inset.
+  @include pixel-corners($corner: var(--pc-px));
 }
 
 // Largura de leitura confortável para as telas principais — em monitores

@@ -258,6 +258,7 @@
   box-shadow:
     inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.25);
+  @include pixel-corners;
 
   &:hover:not(:disabled) {
     transform: translateY(-3px);

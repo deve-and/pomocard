@@ -8,6 +8,7 @@ import { PomodoroTimerService } from '../core/pomodoro-timer.service';
 import { RewardService } from '../core/reward.service';
 import { DeckModalComponent } from '../deck-modal/deck-modal.component';
 import { FlashcardDraft, FlashcardModalComponent } from '../flashcard-modal/flashcard-modal.component';
+import { PomodoroSettingsModalComponent } from '../pomodoro-settings-modal/pomodoro-settings-modal.component';
 import { PomodoroTimerComponent } from '../pomodoro-timer/pomodoro-timer.component';
 
 interface GuildRankEntry {
@@ -18,14 +19,24 @@ interface GuildRankEntry {
 @Component({
   selector: 'pc-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, PomodoroTimerComponent, FlashcardModalComponent, DeckModalComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    PomodoroTimerComponent,
+    FlashcardModalComponent,
+    DeckModalComponent,
+    PomodoroSettingsModalComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
   readonly player = inject(PlayerStateService);
   readonly deckCatalog = inject(DeckCatalogService);
-  private readonly pomodoroTimer = inject(PomodoroTimerService);
+  // Público (não private) porque dashboard.component.html lê pomodoroTimer.isSettingsOpen()
+  // pra renderizar o modal de configurações aqui — fora de qualquer painel com clip-path,
+  // ver o comentário de isSettingsOpen em pomodoro-timer.service.ts.
+  readonly pomodoroTimer = inject(PomodoroTimerService);
   private readonly rewardService = inject(RewardService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);

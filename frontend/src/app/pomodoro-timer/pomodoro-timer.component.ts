@@ -1,18 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PomodoroTimerService } from '../core/pomodoro-timer.service';
-import { PomodoroSettingsModalComponent } from '../pomodoro-settings-modal/pomodoro-settings-modal.component';
 
 /**
  * View fina sobre o PomodoroTimerService: toda a lógica de contagem vive no
  * serviço (singleton de app inteiro) para sobreviver à destruição deste
  * componente quando o usuário navega para outra rota — ver o comentário no
- * topo do serviço para o porquê.
+ * topo do serviço para o porquê. O modal de configurações também é
+ * controlado por esse serviço (isSettingsOpen), mas é RENDERIZADO em
+ * dashboard.component.html, fora do painel do timer — ver o comentário
+ * de isSettingsOpen no serviço para o porquê.
  */
 @Component({
   selector: 'pc-pomodoro-timer',
   standalone: true,
-  imports: [CommonModule, PomodoroSettingsModalComponent],
+  imports: [CommonModule],
   templateUrl: './pomodoro-timer.component.html',
   styleUrl: './pomodoro-timer.component.scss',
 })
@@ -26,7 +28,7 @@ export class PomodoroTimerComponent {
   readonly isBreak = this.timer.isBreak;
   readonly phaseDurationSeconds = this.timer.phaseDurationSeconds;
 
-  readonly isSettingsOpen = signal(false);
+  readonly isSettingsOpen = this.timer.isSettingsOpen;
 
   get displayTime(): string {
     return this.timer.displayTime;

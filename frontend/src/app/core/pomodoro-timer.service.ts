@@ -90,6 +90,15 @@ export class PomodoroTimerService {
   /** Sessão de foco concluída aguardando o dashboard abrir o modal de recompensa. */
   readonly pendingFocusReward = signal<number | null>(null);
 
+  // Mora aqui (não em PomodoroTimerComponent) porque o modal em si precisa renderizar
+  // fora do <section class="panel panel--timer"> que envolve o timer: esse painel tem
+  // clip-path (cantos em degrau, ver _pixel-theme.scss), e clip-path cria um novo
+  // "containing block" pra descendentes position:fixed — um modal fixed nascido DENTRO
+  // dele fica preso ao retângulo do painel em vez da viewport inteira. Ver
+  // dashboard.component.html, onde o modal é renderizado como irmão do <main>, fora de
+  // qualquer painel clipado, mas ainda controlado pelo mesmo botão "⚙ Configurar".
+  readonly isSettingsOpen = signal(false);
+
   readonly phaseLabel = computed(() => {
     switch (this.phase()) {
       case 'short-break':

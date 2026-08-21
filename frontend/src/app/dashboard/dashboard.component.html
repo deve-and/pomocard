@@ -133,4 +133,9 @@
     (create)="onDeckCreate($event)"
     (cancel)="isDeckModalOpen.set(false)"
   ></pc-deck-modal>
+
+  <pc-pomodoro-settings-modal
+    *ngIf="pomodoroTimer.isSettingsOpen()"
+    (closed)="pomodoroTimer.isSettingsOpen.set(false)"
+  ></pc-pomodoro-settings-modal>
 </div>
