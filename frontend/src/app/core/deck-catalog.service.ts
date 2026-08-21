@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { AuthService } from './auth.service';
+import { ErrorToastService } from './error-toast.service';
 import { SrsState } from './reward.service';
 import { SupabaseService } from './supabase.service';
 
@@ -60,6 +61,7 @@ function mapFlashcardRow(row: FlashcardRow): ReviewCard {
 export class DeckCatalogService {
   private readonly supabase = inject(SupabaseService).client;
   private readonly auth = inject(AuthService);
+  private readonly errorToast = inject(ErrorToastService);
 
   private readonly decksState = signal<DeckSummary[]>([]);
   private readonly dueCountState = signal<Record<string, number>>({});
@@ -86,6 +88,7 @@ export class DeckCatalogService {
 
     if (error || !data) {
       console.error('Falha ao carregar decks', error);
+      this.errorToast.show('⚠ Não foi possível carregar seus baralhos. Recarregue a página.');
       return;
     }
 
@@ -136,6 +139,7 @@ export class DeckCatalogService {
 
     if (error || !data) {
       console.error('Falha ao carregar cartas do deck', error);
+      this.errorToast.show('⚠ Não foi possível carregar as cartas deste baralho.');
       return [];
     }
 
@@ -147,6 +151,7 @@ export class DeckCatalogService {
     const { error } = await this.supabase.from('flashcards').delete().eq('id', flashcardId);
     if (error) {
       console.error('Falha ao excluir flashcard', error);
+      this.errorToast.show('⚠ Não foi possível excluir a carta. Tente novamente.');
       return false;
     }
 
@@ -163,6 +168,7 @@ export class DeckCatalogService {
     const { error } = await this.supabase.from('decks').delete().eq('id', deckId);
     if (error) {
       console.error('Falha ao excluir deck', error);
+      this.errorToast.show('⚠ Não foi possível excluir o baralho. Tente novamente.');
       return false;
     }
 
@@ -186,6 +192,7 @@ export class DeckCatalogService {
 
     if (error || !data) {
       console.error('Falha ao criar deck', error);
+      this.errorToast.show('⚠ O baralho não foi criado. Verifique sua conexão e tente de novo.');
       return null;
     }
 
@@ -202,6 +209,7 @@ export class DeckCatalogService {
     });
     if (error) {
       console.error('Falha ao criar flashcard', error);
+      this.errorToast.show('⚠ A carta não foi salva. Verifique sua conexão e tente de novo.');
       return;
     }
 
@@ -235,7 +243,10 @@ export class DeckCatalogService {
         ...(goldEarned > 0 ? { last_gold_awarded_at: new Date().toISOString() } : {}),
       })
       .eq('id', card.id);
-    if (updateError) console.error('Falha ao atualizar agendamento Leitner', updateError);
+    if (updateError) {
+      console.error('Falha ao atualizar agendamento Leitner', updateError);
+      this.errorToast.show('⚠ Sua revisão não foi salva. Verifique sua conexão.');
+    }
 
     const { error: reviewError } = await this.supabase.from('card_reviews').insert({
       flashcard_id: card.id,

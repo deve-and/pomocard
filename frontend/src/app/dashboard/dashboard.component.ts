@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 import { DeckCatalogService, DeckSummary } from '../core/deck-catalog.service';
+import { ErrorToastService } from '../core/error-toast.service';
 import { PlayerStateService } from '../core/player-state.service';
 import { PomodoroTimerService } from '../core/pomodoro-timer.service';
 import { RewardService } from '../core/reward.service';
@@ -38,6 +39,7 @@ export class DashboardComponent {
   // ver o comentário de isSettingsOpen em pomodoro-timer.service.ts.
   readonly pomodoroTimer = inject(PomodoroTimerService);
   private readonly rewardService = inject(RewardService);
+  private readonly errorToast = inject(ErrorToastService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -163,6 +165,7 @@ export class DashboardComponent {
       },
       error: (err) => {
         console.error('Falha ao calcular recompensa do Pomodoro', err);
+        this.errorToast.show('⚠ Não foi possível calcular sua recompensa. Tente novamente.');
         this.isSubmittingFlashcard.set(false);
         this.isFlashcardModalOpen.set(false);
       },

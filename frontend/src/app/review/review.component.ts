@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AudioService } from '../core/audio.service';
 import { DeckCatalogService, ReviewCard } from '../core/deck-catalog.service';
+import { ErrorToastService } from '../core/error-toast.service';
 import { PlayerStateService } from '../core/player-state.service';
 import { RewardService } from '../core/reward.service';
 
@@ -92,6 +93,7 @@ export class ReviewComponent implements OnDestroy {
   private readonly deckCatalog = inject(DeckCatalogService);
   private readonly rewardService = inject(RewardService);
   private readonly audioService = inject(AudioService);
+  private readonly errorToast = inject(ErrorToastService);
   readonly player = inject(PlayerStateService);
 
   private rewardChipTimeout?: ReturnType<typeof setTimeout>;
@@ -216,6 +218,7 @@ export class ReviewComponent implements OnDestroy {
       this.isRevealed.set(false);
     } catch (err) {
       console.error('Falha ao registrar revisão', err);
+      this.errorToast.show('⚠ Não foi possível registrar sua resposta. Tente novamente.');
     } finally {
       this.isSubmitting.set(false);
     }

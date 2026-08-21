@@ -1,0 +1,24 @@
+@use '../shared/styles/pixel-theme' as *;
+
+// Barra de largura total presa no topo absoluto da viewport (não um chip
+// flutuante centralizado) — um chip no meio da tela ficava sanduichado por
+// cima do HUD (que não é fixed, então continua no fluxo normal logo
+// abaixo). Como barra, o contorno é sempre claro: nada do app aparece
+// "atrás" dela. Fundo 100% opaco (não usa --pc-bg-alt, que tem transparência
+// visual por estar próximo do bg do body) — ver --pc-panel-border-dark.
+.error-toast {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 600;
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--pc-hp);
+  background: var(--pc-panel-border-dark);
+  border-bottom: var(--pc-px) solid var(--pc-hp);
+  animation: pc-fade-in-up var(--pc-duration) var(--pc-ease);
+}

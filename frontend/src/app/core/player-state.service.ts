@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ErrorToastService } from './error-toast.service';
 import { RewardService } from './reward.service';
 import { SupabaseService } from './supabase.service';
 
@@ -57,6 +58,7 @@ export class PlayerStateService {
   private readonly supabase = inject(SupabaseService).client;
   private readonly auth = inject(AuthService);
   private readonly rewardService = inject(RewardService);
+  private readonly errorToast = inject(ErrorToastService);
 
   private streakEventTimeout?: ReturnType<typeof setTimeout>;
 
@@ -99,6 +101,7 @@ export class PlayerStateService {
     const { data, error } = await this.supabase.from('users').select('*').eq('id', userId).single<UserRow>();
     if (error || !data) {
       console.error('Falha ao carregar perfil do jogador', error);
+      this.errorToast.show('⚠ Não foi possível carregar seu perfil. Recarregue a página.');
       return;
     }
 
@@ -144,7 +147,10 @@ export class PlayerStateService {
       .from('users')
       .update({ mana: nextGold, xp: nextXp, level: nextLevel })
       .eq('id', userId);
-    if (error) console.error('Falha ao salvar recompensa', error);
+    if (error) {
+      console.error('Falha ao salvar recompensa', error);
+      this.errorToast.show('⚠ Gold/XP não foi salvo — verifique sua conexão.');
+    }
   }
 
   async addFocusMinutes(minutes: number): Promise<void> {
@@ -158,7 +164,10 @@ export class PlayerStateService {
       .from('users')
       .update({ minutes_focused_today: nextMinutes, stamina_reset_on: todayIso() })
       .eq('id', userId);
-    if (error) console.error('Falha ao salvar minutos de foco', error);
+    if (error) {
+      console.error('Falha ao salvar minutos de foco', error);
+      this.errorToast.show('⚠ Seu progresso de foco não foi salvo — verifique sua conexão.');
+    }
 
     // addFocusMinutes já é chamado em todo evento de foco que conta pra sequência
     // (Pomodoro concluído OU carta revisada) — reaproveitando esse ponto único, o
@@ -208,11 +217,15 @@ export class PlayerStateService {
           last_streak_activity_on: result.lastStreakActivityOn,
         })
         .eq('id', userId);
-      if (error) console.error('Falha ao salvar sequência de estudo', error);
+      if (error) {
+        console.error('Falha ao salvar sequência de estudo', error);
+        this.errorToast.show('⚠ Sua sequência diária não foi atualizada.');
+      }
     } catch (err) {
       // Não-crítico: se o avanço de sequência falhar (rede, backend fora do ar), o
       // resto da recompensa (Gold/XP/mana) já foi concedido normalmente antes disso.
       console.error('Falha ao avançar sequência de estudo', err);
+      this.errorToast.show('⚠ Sua sequência diária não foi atualizada.');
     }
   }
 }
