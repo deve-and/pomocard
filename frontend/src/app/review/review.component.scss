@@ -217,6 +217,9 @@
   font-size: 13px;
   color: var(--pc-boss);
   border-color: var(--pc-boss);
+  // Chip pequeno demais pro corte de canto ficar bem — mantém só o glow de
+  // pixel-glow, sem o clip-path que a mixin também aplica.
+  clip-path: none;
 }
 
 // -----------------------------------------------------------------------
@@ -258,11 +261,8 @@
   box-shadow:
     inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.25);
-  @include pixel-corners;
-  // Mesma franja de AA de pixel-button (ver _pixel-theme.scss) — aqui sem
-  // mixin, então usa um branco translúcido genérico em vez de misturar com a
-  // cor de fundo específica (--pc-hp ou --pc-mana, definidas nas variantes).
-  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
+  // Sem cantos arredondados: elemento pequeno demais pro corte ficar bem
+  // (ver pixel-button em _pixel-theme.scss — mesma decisão).
 
   &:hover:not(:disabled) {
     transform: translateY(-3px);

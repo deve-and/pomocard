@@ -234,12 +234,9 @@
   box-shadow:
     inset -4px -4px 0 0 rgba(0, 0, 0, 0.35),
     inset 4px 4px 0 0 rgba(255, 255, 255, 0.35);
-  // Sombras só inset (nunca vazam pra fora da caixa) — sem margem necessária.
-  @include pixel-corners;
-  // Mesma franja de AA de pixel-panel, só que puxando pra branco (clareando a
-  // própria cor do botão) em vez de misturar com um fundo — o botão não tem
-  // um "fundo" atrás fixo, então usa a própria $bg como base da mistura.
-  filter: drop-shadow(0 0 1px color-mix(in srgb, #{$bg} 65%, white));
+  // Sem cantos arredondados aqui de propósito: num elemento pequeno como um
+  // botão, o corte em escada fica desproporcional/ruim — o arredondamento
+  // fica reservado pra superfícies grandes (pixel-panel, pixel-glow).
 
   &:active {
     box-shadow:
@@ -286,9 +283,7 @@
   border: var(--pc-px) solid var(--pc-panel-border-dark);
   box-shadow: inset 0 0 0 2px var(--pc-panel-border-light);
   overflow: hidden;
-  // Canto menor que o padrão (a barra é fina, um corte de 8px comeria a
-  // altura inteira) — sem margem, a sombra e o preenchimento são inset.
-  @include pixel-corners($corner: var(--pc-px));
+  // Sem cantos arredondados: barra fina demais pro corte ficar bem.
 }
 
 // Largura de leitura confortável para as telas principais — em monitores
