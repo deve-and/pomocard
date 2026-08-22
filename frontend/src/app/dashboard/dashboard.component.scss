@@ -58,29 +58,27 @@
 }
 
 .hud__bar {
+  // Rótulo+valor numa linha, a barra embaixo — padrão comum de widget de
+  // estatística (Duolingo, HUDs de RPG) em vez de tudo espremido numa linha
+  // só. Resolve de raiz a briga de espaço horizontal que existia antes:
+  // rótulo/valor não competem mais com a track pela mesma largura, então a
+  // barra nunca mais encolhe por causa de um texto vizinho mais longo.
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 5px;
   font-size: 10px;
-  // Cresce até um teto (max-width) em vez de sem limite — era o flex-grow
-  // ilimitado que fazia as duas barras engolirem sozinhas todo o espaço
-  // sobrando, ficando desproporcionais aos módulos vizinhos (identidade,
-  // gold, streak, sair). Sem min-width explícito de propósito: o mínimo
-  // automático do flexbox (baseado no conteúdo — rótulo + track mínima +
-  // valor de 172px) já é maior que qualquer número redondo que eu chutasse
-  // à mão, e um valor fixo menor que esse mínimo real só forçava quebra de
-  // linha cedo demais sem de fato proteger nada.
-  flex: 1 1 260px;
-  max-width: 270px;
+  flex: 1 1 160px;
+  max-width: 220px;
+}
+
+.hud__bar-info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .hud__bar-label {
-  // Antes tinha flex-basis fixo de 72px — bem mais largo que "XP" precisa,
-  // deixando um vão vazio entre o texto e a barra (as duas linhas ficam lado
-  // a lado, não empilhadas, então não há motivo pra alinhar a largura do
-  // rótulo entre elas). Encolhe pro tamanho do próprio texto.
-  flex: 0 0 auto;
-  white-space: nowrap;
   color: var(--pc-text-muted);
 }
 
@@ -88,13 +86,14 @@
   color: var(--pc-mana);
 }
 
+.hud__bar-value {
+  white-space: nowrap;
+  color: var(--pc-text-muted);
+}
+
 .hud__track {
   @include pixel-bar-track;
-  flex: 1;
-  // Sem isso, sob pressão de espaço a track é a única coisa flexível dentro
-  // de .hud__bar (rótulo e valor têm tamanho fixo) e acaba minguando quase a
-  // zero antes de qualquer um dos outros encolher.
-  min-width: 80px;
+  width: 100%;
 }
 
 .hud__fill {
@@ -137,25 +136,6 @@
   background: linear-gradient(180deg, color-mix(in srgb, var(--pc-hp) 70%, white), var(--pc-hp));
   box-shadow: 0 0 8px -1px var(--pc-hp);
   animation: pc-pulse 1.1s ease-in-out infinite;
-}
-
-.hud__bar-value {
-  // Largura fixa (não flex:1 nem auto): "840/1500" e "180min restantes" têm
-  // tamanhos bem diferentes — sem isso, o texto mais longo (Mana) sobra menos
-  // espaço pra --pc-track, que também é flex:1 na mesma linha, e a barra
-  // encolhe visivelmente comparada à de XP. Largura fixa devolve o mesmo
-  // espaço de track pras duas linhas. Alinhado à esquerda porque o valor vem
-  // DEPOIS da track no HTML — colar o texto nela evita um vão vazio quando o
-  // texto é curto; a sobra fica no fim da linha, onde não é visível. 172px
-  // cobre com folga a largura real medida de "180min restantes" (168px, a
-  // string mais longa) — com shrink:0 qualquer valor menor que isso cortava
-  // o texto sem quebrar linha (white-space: nowrap), invisível em telas
-  // largas por sobrar espaço ao redor, mas vazando pra fora do painel em
-  // telas mais estreitas.
-  flex: 0 0 172px;
-  text-align: left;
-  white-space: nowrap;
-  color: var(--pc-text-muted);
 }
 
 .hud__gold {

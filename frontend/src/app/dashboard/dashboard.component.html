@@ -10,15 +10,20 @@
     </div>
 
     <div class="hud__bar">
-      <span class="hud__bar-label">XP</span>
+      <div class="hud__bar-info">
+        <span class="hud__bar-label">XP</span>
+        <span class="hud__bar-value">{{ player.xp() }}/{{ player.xpToNextLevel() }}</span>
+      </div>
       <div class="hud__track">
         <div class="hud__fill hud__fill--xp" [style.width.%]="player.xpPercent()"></div>
       </div>
-      <span class="hud__bar-value">{{ player.xp() }}/{{ player.xpToNextLevel() }}</span>
     </div>
 
     <div class="hud__bar">
-      <span class="hud__bar-label" [class.hud__bar-label--bonus]="player.isInBonusWindow()">Mana</span>
+      <div class="hud__bar-info">
+        <span class="hud__bar-label" [class.hud__bar-label--bonus]="player.isInBonusWindow()">Mana</span>
+        <span class="hud__bar-value">{{ player.manaRemainingMinutes() }}min restantes</span>
+      </div>
       <div class="hud__track">
         <div
           class="hud__fill hud__fill--mana"
@@ -27,7 +32,6 @@
           [style.width.%]="player.manaPercent()"
         ></div>
       </div>
-      <span class="hud__bar-value">{{ player.manaRemainingMinutes() }}min restantes</span>
     </div>
 
     <div class="hud__gold">
