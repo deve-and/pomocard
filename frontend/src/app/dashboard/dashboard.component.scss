@@ -61,7 +61,12 @@
 }
 
 .hud__bar-label {
-  flex: 0 0 72px;
+  // Antes tinha flex-basis fixo de 72px — bem mais largo que "XP" precisa,
+  // deixando um vão vazio entre o texto e a barra (as duas linhas ficam lado
+  // a lado, não empilhadas, então não há motivo pra alinhar a largura do
+  // rótulo entre elas). Encolhe pro tamanho do próprio texto.
+  flex: 0 0 auto;
+  white-space: nowrap;
   color: var(--pc-text-muted);
 }
 
@@ -117,6 +122,16 @@
 }
 
 .hud__bar-value {
+  // Largura fixa (não flex:1 nem auto): "840/1500" e "180min restantes" têm
+  // tamanhos bem diferentes — sem isso, o texto mais longo (Mana) sobra menos
+  // espaço pra --pc-track, que também é flex:1 na mesma linha, e a barra
+  // encolhe visivelmente comparada à de XP. Largura fixa devolve o mesmo
+  // espaço de --pc-track pras duas linhas, alinhado à direita pra não deixar
+  // vão entre a barra e o número quando o texto é curto (o valor vem DEPOIS
+  // da track no HTML, então alinhar à esquerda cola o texto nela; a sobra
+  // fica no fim da linha, onde não é visível).
+  flex: 0 0 108px;
+  text-align: left;
   white-space: nowrap;
   color: var(--pc-text-muted);
 }
