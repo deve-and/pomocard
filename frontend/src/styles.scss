@@ -10,18 +10,26 @@ body {
   padding: 0;
   height: 100%;
   color: var(--pc-text);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--pc-font-body);
 }
 
 body {
   background: radial-gradient(ellipse at top, var(--pc-bg-alt) 0%, var(--pc-bg) 65%) fixed;
 }
 
-// Títulos e elementos de "jogo" usam a fonte pixelada; texto corrido usa
-// uma fonte legível, para não sacrificar acessibilidade em blocos longos.
+// Títulos usam a serifada de personalidade; texto corrido usa a sans
+// moderna do body inteiro. A fonte pixel fica reservada só pro relógio do
+// Pomodoro — .pc-pixel-text ainda está pendente de revisão caso a caso
+// (hoje ela também é aplicada a headers/rótulos que deveriam ir pra Cinzel
+// ou Hanken Grotesk; só o próprio dígito do timer deve continuar pixelado).
 h1,
 h2,
-h3,
+h3 {
+  font-family: var(--pc-font-display);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
 .pc-pixel-text {
   font-family: var(--pc-font-pixel);
   letter-spacing: 0.5px;

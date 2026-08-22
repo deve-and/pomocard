@@ -4,12 +4,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 18px;
 }
 
 .timer__phase {
   margin: 0;
-  font-size: 11px;
+  font-family: var(--pc-font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
   color: var(--pc-gold);
   transition: color var(--pc-duration) var(--pc-ease);
 }
@@ -18,10 +22,51 @@
   color: var(--pc-mana);
 }
 
+// A fogueira: dois anéis concêntricos com glow radial atrás do dígito —
+// o Pomodoro como centro visual da tela, não mais um número solto num card.
+.timer__ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 50% 55%,
+    color-mix(in srgb, var(--pc-gold) 22%, transparent) 0%,
+    color-mix(in srgb, var(--pc-gold) 5%, transparent) 45%,
+    transparent 72%
+  );
+  border: 1px solid color-mix(in srgb, var(--pc-gold) 35%, transparent);
+  transition: background var(--pc-duration) var(--pc-ease), border-color var(--pc-duration) var(--pc-ease);
+}
+
+.timer--break .timer__ring {
+  background: radial-gradient(
+    circle at 50% 55%,
+    color-mix(in srgb, var(--pc-mana) 22%, transparent) 0%,
+    color-mix(in srgb, var(--pc-mana) 5%, transparent) 45%,
+    transparent 72%
+  );
+  border-color: color-mix(in srgb, var(--pc-mana) 35%, transparent);
+}
+
+.timer__ring-inner {
+  width: 152px;
+  height: 152px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--pc-panel-border-light);
+}
+
 .timer__display {
-  font-size: 40px;
-  margin: 0 0 8px;
+  font-size: 26px;
+  margin: 0;
   color: var(--pc-text);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--pc-gold) 45%, transparent);
 }
 
 .timer__controls {

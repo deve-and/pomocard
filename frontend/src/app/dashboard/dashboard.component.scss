@@ -13,6 +13,11 @@
 // -----------------------------------------------------------------------
 .hud {
   @include pixel-panel(var(--pc-panel));
+  // Grão sutil em diagonal — a "sacola de couro" do HUD, mesma referência de
+  // fisicalidade do resto do Hero. Só um leve relevo, não chega a ser textura
+  // de madeira (isso fica reservado pros containers grandes de Guilda/Decks).
+  background-image:
+    repeating-linear-gradient(4deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 5px);
   display: flex;
   align-items: center;
   gap: 24px;
@@ -189,14 +194,17 @@
 }
 
 // -----------------------------------------------------------------------
-// Timer
+// Fogueira (hero do Pomodoro) — sem pixel-panel de propósito: não é mais
+// "um card entre outros", é o centro visual da tela, então fica sem moldura
+// de painel, só a cena com glow radial vinda do próprio timer.
 // -----------------------------------------------------------------------
-.panel--timer {
+.hero-fire {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 16px;
+  gap: 12px;
+  padding: 12px 0 8px;
 }
 
 .timer__hint {
@@ -298,11 +306,21 @@
   // O card inteiro é clicável agora (ver openDeck() em dashboard.component.ts) — não
   // só o badge/link de antes.
   cursor: pointer;
+  // Leve inclinação alternada — os baralhos como suprimentos espalhados perto
+  // da fogueira (ver Hero), não uma lista de retângulos perfeitos. Sutil de
+  // propósito (±0.6deg): dá caráter sem parecer desalinhado numa lista longa.
+  transform: rotate(-0.6deg);
   transition: transform var(--pc-duration) var(--pc-ease), box-shadow var(--pc-duration) var(--pc-ease);
+
+  &:nth-child(even) {
+    transform: rotate(0.6deg);
+  }
 
   &:hover,
   &:focus-visible {
-    transform: translateY(-2px);
+    // Ao interagir, a carta "se endireita" e sobe — reforça que virou o alvo
+    // ativo do clique, saindo do monte espalhado.
+    transform: translateY(-2px) rotate(0deg);
   }
 
   &:focus-visible {
@@ -336,7 +354,9 @@
   display: inline-block;
   padding: 4px 8px;
   font-size: 10px;
-  background: var(--pc-hp);
+  // --pc-hp puro não fecha 4.5:1 com --pc-text (3.9:1) — --pc-hp-strong é a
+  // variante escurecida pra esse par (5.42:1), ver _pixel-theme.scss.
+  background: var(--pc-hp-strong);
   color: var(--pc-text);
 }
 

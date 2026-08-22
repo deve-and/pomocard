@@ -73,7 +73,7 @@
   p {
     margin: 0;
     font-size: 20px;
-    color: var(--pc-hp);
+    color: var(--pc-hp-on-dark);
   }
 }
 
@@ -215,11 +215,14 @@
   @include pixel-glow(var(--pc-boss), 0.55);
   padding: 10px 20px;
   font-size: 13px;
-  color: var(--pc-boss);
+  // --pc-boss é claro demais pra ler como texto pequeno sobre o fundo escuro
+  // do chip (3.6:1, abaixo de AA) — --pc-boss-strong é a mesma matiz roxa
+  // clareada até 5.1:1, só pra este tipo de uso em texto/preenchimento.
+  color: var(--pc-boss-strong);
   border-color: var(--pc-boss);
-  // Chip pequeno demais pro corte de canto ficar bem — mantém só o glow de
-  // pixel-glow, sem o clip-path que a mixin também aplica.
-  clip-path: none;
+  // Chip pequeno demais pro arredondamento de pixel-glow ficar bem — mantém
+  // só o glow, sem o canto suave que a mixin também aplica.
+  border-radius: 0;
 }
 
 // -----------------------------------------------------------------------
@@ -282,11 +285,11 @@
 }
 
 .rating-button--again {
-  background: var(--pc-hp);
-  // #f4f1ea (--pc-text) sobre #ff5c5c (--pc-hp) dava só 2.68:1 — abaixo do
-  // mínimo AA (4.5:1). --pc-bg sobre a mesma cor rende 6.21:1 (AAA p/ texto
-  // grande), então o botão mais importante do fluxo de estudo passa a ser legível.
-  color: var(--pc-bg);
+  // --pc-hp (paleta Rescaldo) é um tom médio: nem --pc-text nem --pc-bg
+  // fecham 4.5:1 contra ele (3.9:1 e 3.58:1). --pc-hp-strong é a variante
+  // escurecida só pra preenchimento sólido, pareada com texto claro: 5.42:1.
+  background: var(--pc-hp-strong);
+  color: var(--pc-text);
 }
 
 .rating-button--good {

@@ -3,37 +3,61 @@
 // ============================================================================
 
 :root {
-  // Paleta base (inspirada em 8-bit / Deckbuilder)
-  --pc-bg: #12101c;
-  --pc-bg-alt: #1c1830;
-  --pc-panel: #241f3d;
-  --pc-panel-border-dark: #0b0a14;
-  --pc-panel-border-light: #4a3f7a;
+  // Paleta "Rescaldo" — tons de fogueira ao entardecer numa taverna de
+  // guilda: terrosos, roxos crepusculares e pergaminho quente. Substitui a
+  // paleta 8-bit de alto contraste por uma de baixa fadiga visual pra
+  // sessões longas de estudo, mantendo os MESMOS nomes de variável (só o
+  // valor muda) pra não quebrar nenhum componente consumidor.
+  --pc-bg: #1c1a1f;
+  --pc-bg-alt: #26222b;
+  --pc-panel: #322b30;
+  --pc-panel-border-dark: #4a3f3a;
+  --pc-panel-border-light: #6b5b4f;
 
-  --pc-text: #f4f1ea;
-  --pc-text-muted: #a79ecb;
+  --pc-text: #efe6d8;
+  --pc-text-muted: #b3a08c;
 
-  --pc-gold: #ffd866;
-  --pc-mana: #4cc9f0;
-  --pc-xp: #7ed957;
-  --pc-hp: #ff5c5c;
-  --pc-stamina: #ff9f4c;
-  --pc-boss: #c46bff;
+  --pc-gold: #d1a054;
+  // --pc-mana/--pc-stamina levemente clareados a partir do primeiro rascunho
+  // da paleta: os tons originais (#6b8f8a / #c17f4a) passavam como texto só
+  // sobre --pc-bg, mas ficavam abaixo de 4.5:1 (WCAG AA) sobre --pc-bg-alt e
+  // --pc-panel — onde ambos também aparecem como texto (dica de configuração,
+  // contador de sequência no HUD). Clareado até fechar AA nos três fundos.
+  --pc-mana: #78a09b;
+  --pc-xp: #8a9b5e;
+  --pc-hp: #b0584f;
+  --pc-stamina: #cb8f5c;
+  --pc-boss: #8b6f9e;
 
-  // Tipografia pixelada
+  // Variantes de --pc-hp/--pc-boss só pra texto/preenchimento sólido: as
+  // cores "decorativas" acima (usadas em bordas, glows, ícones) não fecham
+  // 4.5:1 (WCAG AA) contra nenhum par de texto claro/escuro do app — são
+  // tons deliberadamente médios pra não cansar a vista como accent color.
+  // Estas variantes só existem pra manter esses casos específicos legíveis.
+  --pc-hp-strong: #8f473c; // fundo sólido de botão destrutivo + texto --pc-text: 5.42:1
+  // --pc-hp como texto/ícone sobre fundo escuro: verificado contra os 4 tons
+  // de fundo onde --pc-hp aparece como texto no app — bg 7.93:1, bg-alt
+  // 7.44:1, panel 6.57:1, panel-border-dark (error-toast) 4.86:1 — todos AA.
+  --pc-hp-on-dark: #e39f93;
+  --pc-boss-strong: #a690b8; // texto sobre --pc-bg-alt: 5.06:1 / sobre --pc-panel: 4.47:1
+
+  // Tipografia: Cinzel (serifada, títulos curtos) + Hanken Grotesk (corpo,
+  // moderna e limpa) substituem a fonte pixel em todo texto de leitura —
+  // ela fica reservada só pro relógio do Pomodoro (ver pomodoro-timer).
+  // Esse remapeamento de cada .pc-pixel-text existente ainda está pendente,
+  // template por template — só os tokens e o corpo global mudam nesta etapa.
+  --pc-font-display: 'Cinzel', 'Iowan Old Style', Georgia, serif;
+  --pc-font-body: 'Hanken Grotesk', system-ui, sans-serif;
   --pc-font-pixel: 'Press Start 2P', 'Courier New', monospace;
 
   // Unidade base de "pixel" para bordas/sombras em degrau
   --pc-px: 4px;
 
-  // Tamanho do corte de canto em escada dos painéis/modais/cartas (ver
-  // pixel-corners abaixo). Teto real: border/box-shadow (a "moldura" de
-  // pixel-panel) tem largura FIXA de --pc-px e não acompanha a curva do
-  // clip-path — acima de ~2.5x essa largura, o corte passa a "comer" a
-  // moldura nos cantos (ela é cortada junto, mas não é redesenhada pra
-  // seguir a curva). 10px é o maior valor testado que não deixa gap visível
-  // em nenhum painel/botão do app.
-  --pc-corner: 10px;
+  // Raio de canto para superfícies estruturais grandes (painéis, modais,
+  // cards de destaque) — ver pixel-panel/pixel-glow. Controles pequenos e
+  // funcionais (botões, inputs, barras) continuam com cantos retos de
+  // propósito, sem usar este token.
+  --pc-radius-lg: 22px;
 
   // Curva de movimento "arcade" — rápida no início, sem quicar suavemente.
   --pc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -44,128 +68,18 @@
   --pc-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-// Canto "arredondado" em degrau de pixel — o jeito pixel art de suavizar uma
-// quina sem recorrer a uma curva suave (border-radius não existe aqui de
-// propósito). 9 degraus amostrados de um quarto de círculo de verdade (a
-// cada 10°, via seno/cosseno) — o dobro de "resolução" da versão anterior
-// (5 degraus a cada 18°), pra escada se aproximar ainda mais de uma curva
-// contínua, mesma lógica de um sprite com mais pixels renderizando um
-// círculo mais fiel. $g1..$g8 são as frações trigonométricas (sin 10° a
-// sin 80°) do tamanho do canto.
-//
-// $margin estende a região do recorte pra além da caixa nos 4 lados, pra
-// sombras/glows que normalmente vazam pra fora (box-shadow com offset ou
-// blur) não serem cortados junto com os cantos — ver pixel-panel (sombra
-// rígida, margem pequena) e pixel-glow (halo desfocado, margem maior).
-@mixin pixel-corners($corner: calc(var(--pc-px) * 2), $margin: 0px) {
-  $g1: calc(#{$corner} * 0.174);
-  $g2: calc(#{$corner} * 0.342);
-  $g3: calc(#{$corner} * 0.5);
-  $g4: calc(#{$corner} * 0.643);
-  $g5: calc(#{$corner} * 0.766);
-  $g6: calc(#{$corner} * 0.866);
-  $g7: calc(#{$corner} * 0.940);
-  $g8: calc(#{$corner} * 0.985);
-  $near0: calc(0px - #{$margin});
-  $near100: calc(100% + #{$margin});
-
-  clip-path: polygon(
-    // canto superior-esquerdo
-    #{$near0} #{$corner},
-    #{$g1} #{$corner},
-    #{$g1} #{$g8},
-    #{$g2} #{$g8},
-    #{$g2} #{$g7},
-    #{$g3} #{$g7},
-    #{$g3} #{$g6},
-    #{$g4} #{$g6},
-    #{$g4} #{$g5},
-    #{$g5} #{$g5},
-    #{$g5} #{$g4},
-    #{$g6} #{$g4},
-    #{$g6} #{$g3},
-    #{$g7} #{$g3},
-    #{$g7} #{$g2},
-    #{$g8} #{$g2},
-    #{$g8} #{$g1},
-    #{$corner} #{$g1},
-    #{$corner} #{$near0},
-    // canto superior-direito
-    calc(100% - #{$corner}) #{$near0},
-    calc(100% - #{$corner}) #{$g1},
-    calc(100% - #{$g8}) #{$g1},
-    calc(100% - #{$g8}) #{$g2},
-    calc(100% - #{$g7}) #{$g2},
-    calc(100% - #{$g7}) #{$g3},
-    calc(100% - #{$g6}) #{$g3},
-    calc(100% - #{$g6}) #{$g4},
-    calc(100% - #{$g5}) #{$g4},
-    calc(100% - #{$g5}) #{$g5},
-    calc(100% - #{$g4}) #{$g5},
-    calc(100% - #{$g4}) #{$g6},
-    calc(100% - #{$g3}) #{$g6},
-    calc(100% - #{$g3}) #{$g7},
-    calc(100% - #{$g2}) #{$g7},
-    calc(100% - #{$g2}) #{$g8},
-    calc(100% - #{$g1}) #{$g8},
-    calc(100% - #{$g1}) #{$corner},
-    #{$near100} #{$corner},
-    // canto inferior-direito
-    #{$near100} calc(100% - #{$corner}),
-    calc(100% - #{$g1}) calc(100% - #{$corner}),
-    calc(100% - #{$g1}) calc(100% - #{$g8}),
-    calc(100% - #{$g2}) calc(100% - #{$g8}),
-    calc(100% - #{$g2}) calc(100% - #{$g7}),
-    calc(100% - #{$g3}) calc(100% - #{$g7}),
-    calc(100% - #{$g3}) calc(100% - #{$g6}),
-    calc(100% - #{$g4}) calc(100% - #{$g6}),
-    calc(100% - #{$g4}) calc(100% - #{$g5}),
-    calc(100% - #{$g5}) calc(100% - #{$g5}),
-    calc(100% - #{$g5}) calc(100% - #{$g4}),
-    calc(100% - #{$g6}) calc(100% - #{$g4}),
-    calc(100% - #{$g6}) calc(100% - #{$g3}),
-    calc(100% - #{$g7}) calc(100% - #{$g3}),
-    calc(100% - #{$g7}) calc(100% - #{$g2}),
-    calc(100% - #{$g8}) calc(100% - #{$g2}),
-    calc(100% - #{$g8}) calc(100% - #{$g1}),
-    calc(100% - #{$corner}) calc(100% - #{$g1}),
-    calc(100% - #{$corner}) #{$near100},
-    // canto inferior-esquerdo
-    #{$corner} #{$near100},
-    #{$corner} calc(100% - #{$g1}),
-    #{$g8} calc(100% - #{$g1}),
-    #{$g8} calc(100% - #{$g2}),
-    #{$g7} calc(100% - #{$g2}),
-    #{$g7} calc(100% - #{$g3}),
-    #{$g6} calc(100% - #{$g3}),
-    #{$g6} calc(100% - #{$g4}),
-    #{$g5} calc(100% - #{$g4}),
-    #{$g5} calc(100% - #{$g5}),
-    #{$g4} calc(100% - #{$g5}),
-    #{$g4} calc(100% - #{$g6}),
-    #{$g3} calc(100% - #{$g6}),
-    #{$g3} calc(100% - #{$g7}),
-    #{$g2} calc(100% - #{$g7}),
-    #{$g2} calc(100% - #{$g8}),
-    #{$g1} calc(100% - #{$g8}),
-    #{$g1} calc(100% - #{$corner}),
-    #{$near0} calc(100% - #{$corner})
-  );
-}
-
-// Glow de destaque atrás de um painel — profundidade sutil sem abandonar as
-// bordas em degrau, comum em UIs retrô contemporâneas (Hades, Dead Cells).
+// Glow de destaque atrás de um painel — profundidade sutil, agora com canto
+// suave (--pc-radius-lg) em vez do corte em degrau: como o box-shadow não é
+// recortado por border-radius (só por clip-path), o halo desfocado renderiza
+// sem precisar de margem extra pra compensar corte — border-radius nunca
+// corta o próprio elemento, só arredonda a caixa de recorte de overflow.
 @mixin pixel-glow($color: var(--pc-gold), $strength: 0.35) {
   box-shadow:
     inset 0 0 0 var(--pc-px) var(--pc-panel-border-light),
     0 var(--pc-px) 0 0 var(--pc-panel-border-dark),
     0 0 24px rgba(0, 0, 0, 0.5),
     0 0 32px -8px color-mix(in srgb, $color $strength * 100%, transparent);
-  // Margem generosa (cobre o halo de 24-32px de blur) — sem isso o clip-path
-  // dos cantos cortaria o glow inteiro fora da caixa, junto com a quina. Usa
-  // o mesmo --pc-corner de pixel-panel pra não ficar com um recorte menor
-  // quando os dois são combinados (glow é incluído por último, então vence).
-  @include pixel-corners($corner: var(--pc-corner), $margin: 32px);
+  border-radius: var(--pc-radius-lg);
 }
 
 @keyframes pc-fade-in-up {
@@ -201,23 +115,18 @@
   }
 }
 
-// Painel com moldura em degrau (bezel de 8-bit) — cantos em escada de pixel
-// em vez de border-radius suave, mas nunca mais um retângulo 100% quadrado.
+// Painel com moldura bevel — canto suave (--pc-radius-lg): superfícies
+// estruturais grandes (painéis, modais) ganham arredondamento de verdade,
+// reservando o corte reto de 90° só pros controles pequenos (pixel-button,
+// pixel-bar-track), que continuam sem chamar este mixin.
 @mixin pixel-panel($bg: var(--pc-panel)) {
   background: $bg;
   border: var(--pc-px) solid var(--pc-panel-border-dark);
+  border-radius: var(--pc-radius-lg);
   box-shadow:
     inset 0 0 0 var(--pc-px) var(--pc-panel-border-light),
     0 var(--pc-px) 0 0 var(--pc-panel-border-dark);
   image-rendering: pixelated;
-  // Margem só do tamanho do deslocamento vertical da sombra rígida acima —
-  // sem isso o canto cortaria a ponta da sombra que sobra abaixo da caixa.
-  @include pixel-corners($corner: var(--pc-corner), $margin: var(--pc-px));
-  // Franja de anti-aliasing "à mão": um blur de 1px numa cor MISTURADA da
-  // própria paleta (borda clara + fundo do painel) hugging o contorno já
-  // recortado — suaviza visualmente o degrau sem trocar de técnica (ainda é
-  // um clip, só ganha uma borda macia em vez de um corte 100% binário).
-  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--pc-panel-border-light) 55%, #{$bg}));
 }
 
 // Botão estilo NES: sobe/desce ao pressionar. A transição só existe no eixo

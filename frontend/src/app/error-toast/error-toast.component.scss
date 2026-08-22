@@ -17,8 +17,8 @@
   font-size: 11px;
   line-height: 1.6;
   text-align: center;
-  color: var(--pc-hp);
+  color: var(--pc-hp-on-dark);
   background: var(--pc-panel-border-dark);
-  border-bottom: var(--pc-px) solid var(--pc-hp);
+  border-bottom: var(--pc-px) solid var(--pc-hp-on-dark);
   animation: pc-fade-in-up var(--pc-duration) var(--pc-ease);
 }

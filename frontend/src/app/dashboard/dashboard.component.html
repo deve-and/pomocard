@@ -60,15 +60,16 @@
 
   <p class="streak-toast pc-pixel-text" *ngIf="streakToastMessage() as message">{{ message }}</p>
 
+  <!-- Fogueira: o Pomodoro como elemento centralizador da tela, não mais um
+       card espremido na lateral — ver requisito 3 da direção de arte. -->
+  <section class="hero-fire">
+    <pc-pomodoro-timer></pc-pomodoro-timer>
+    <p class="timer__hint" *ngIf="player.isInBonusWindow()">Bônus de Mana ativo: +100% de Gold nesta sessão!</p>
+  </section>
+
   <main class="dashboard__grid">
     <!-- Coluna lateral: cresce por conta própria, sem esticar o card de Decks -->
     <div class="dashboard__sidebar">
-      <section class="panel panel--timer">
-        <h2>Pomodoro</h2>
-        <pc-pomodoro-timer></pc-pomodoro-timer>
-        <p class="timer__hint" *ngIf="player.isInBonusWindow()">Bônus de Mana ativo: +100% de Gold nesta sessão!</p>
-      </section>
-
       <section class="panel panel--guild">
         <h2>Ranking da Guilda</h2>
         <ol class="guild-rank">

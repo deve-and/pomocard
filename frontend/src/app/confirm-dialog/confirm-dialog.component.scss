@@ -10,7 +10,7 @@
   h2 {
     margin: 0;
     font-size: 14px;
-    color: var(--pc-hp);
+    color: var(--pc-hp-on-dark);
   }
 }
 
@@ -37,5 +37,7 @@
 }
 
 .pixel-button--danger {
-  @include pixel-button(var(--pc-hp), #2a0d0d);
+  // Ver nota equivalente em deck-detail.component.scss: --pc-hp-strong é a
+  // variante de --pc-hp segura pra preenchimento sólido de botão (5.42:1).
+  @include pixel-button(var(--pc-hp-strong), var(--pc-text));
 }

@@ -1,6 +1,10 @@
 <div class="timer" [class.timer--break]="isBreak()">
-  <p class="timer__phase pc-pixel-text">{{ phaseLabel() }}</p>
-  <p class="timer__display pc-pixel-text">{{ displayTime }}</p>
+  <p class="timer__phase">{{ phaseLabel() }}</p>
+  <div class="timer__ring">
+    <div class="timer__ring-inner">
+      <p class="timer__display pc-pixel-text">{{ displayTime }}</p>
+    </div>
+  </div>
   <div class="timer__controls">
     <button class="pixel-button" type="button" *ngIf="!isRunning()" (click)="start()">
       {{ remainingSeconds() === phaseDurationSeconds() ? 'Iniciar' : 'Retomar' }}

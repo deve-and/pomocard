@@ -38,7 +38,7 @@
 .deck-detail__error {
   padding: 10px 16px;
   font-size: 11px;
-  color: var(--pc-hp);
+  color: var(--pc-hp-on-dark);
   background: var(--pc-bg-alt);
   border: 3px solid var(--pc-hp);
   animation: pc-pop-in var(--pc-duration) var(--pc-ease);
@@ -99,13 +99,17 @@
   height: 32px;
   border: 3px solid var(--pc-panel-border-light);
   background: var(--pc-bg);
-  color: var(--pc-hp);
+  // --pc-hp puro sobre --pc-bg só dá 3.58:1 — --pc-hp-on-dark é a variante
+  // clareada pra texto/ícone sobre fundo escuro (4.87:1).
+  color: var(--pc-hp-on-dark);
   font-family: var(--pc-font-pixel);
   cursor: pointer;
   transition: background var(--pc-duration) var(--pc-ease), transform var(--pc-duration) var(--pc-ease);
 
   &:hover {
-    background: var(--pc-hp);
+    // Aqui a direção inverte (fundo sólido + texto claro), por isso usa a
+    // variante escurecida --pc-hp-strong (5.42:1), não a --pc-hp-on-dark acima.
+    background: var(--pc-hp-strong);
     color: var(--pc-text);
     transform: scale(1.05);
   }
@@ -116,6 +120,9 @@
 }
 
 .pixel-button--danger {
-  @include pixel-button(var(--pc-hp), #2a0d0d);
+  // --pc-hp (tom médio, baixa fadiga) não fecha 4.5:1 com nenhum texto
+  // sólido — --pc-hp-strong é uma variante escurecida só pra preenchimento
+  // de botão, pareada com texto claro (5.42:1).
+  @include pixel-button(var(--pc-hp-strong), var(--pc-text));
   font-size: 10px;
 }
